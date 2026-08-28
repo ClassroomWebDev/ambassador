@@ -116,8 +116,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="px-4 pb-28 pt-6 md:ml-64 md:px-10 md:pb-14">{children}</main>
 
       {/* Mobile bottom navigation */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-sidebar-border bg-sidebar px-2 pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden">
-        {NAV.map((item) => (
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-sidebar-border bg-sidebar px-2 pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden">
+        {NAV.slice(0, 4).map((item) => (
+
           <Link
             key={item.to}
             to={item.to}
