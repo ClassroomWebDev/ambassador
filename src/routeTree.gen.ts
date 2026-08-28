@@ -19,6 +19,7 @@ import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenti
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
+import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +71,11 @@ const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
   path: '/support',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/support': typeof AuthenticatedSupportRoute
+  '/users': typeof AuthenticatedUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/support': typeof AuthenticatedSupportRoute
+  '/users': typeof AuthenticatedUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
+  '/_authenticated/users': typeof AuthenticatedUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sales'
     | '/support'
+    | '/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sales'
     | '/support'
+    | '/users'
   id:
     | '__root__'
     | '/'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/sales'
     | '/_authenticated/support'
+    | '/_authenticated/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -221,6 +233,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSupportRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/users': {
+      id: '/_authenticated/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -232,6 +251,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
+  AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -242,6 +262,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
+  AuthenticatedUsersRoute: AuthenticatedUsersRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
