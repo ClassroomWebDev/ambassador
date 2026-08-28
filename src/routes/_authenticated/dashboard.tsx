@@ -88,11 +88,11 @@ function dailySeries(sales: Sale[]) {
 
 function Dashboard() {
   const { data: profile } = useProfile();
-  const role: AppRole = "admin";
+  const role: any = "admin";
   const { data: sales } = useSales();
   const { data: settings } = useProgramSettings();
   const stats = profileCompletion((profile ?? {}) as Record<string, unknown>);
-  const staff = isStaffRole(role);
+  const staff = true;
 
   const rows = sales ?? [];
   const cards = useMemo(() => kpis(rows, settings?.season_start), [rows, settings?.season_start]);
