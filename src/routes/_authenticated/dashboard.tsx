@@ -88,7 +88,7 @@ function dailySeries(sales: Sale[]) {
 
 function Dashboard() {
   const { data: profile } = useProfile();
-  const { data: role } = useMyRole();
+  const role = "admin";
   const { data: sales } = useSales();
   const { data: settings } = useProgramSettings();
   const stats = profileCompletion((profile ?? {}) as Record<string, unknown>);
@@ -141,7 +141,7 @@ function Dashboard() {
       {staff ? <StaffPanel pending={pending} /> : null}
       {role === "mentor" ? <TeamPanel title="Mentor network analytics" /> : null}
       {role === "coordinator" ? <TeamPanel title="My team points breakdown" showSalesLink /> : null}
-      {(!role || role === "ambassador") ? <AmbassadorPanel /> : null}
+      {!role || role === "ambassador" ? <AmbassadorPanel /> : null}
 
       <section className="rounded-3xl bg-surface-dark p-6 text-surface-dark-foreground sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -158,8 +158,7 @@ function Dashboard() {
         <Progress value={stats.percent} className="mt-6 bg-surface-dark-foreground/15" />
         <div className="mt-4 grid gap-1 text-sm text-surface-dark-foreground/70">
           <p>
-            Mandatory {stats.mandatoryDone}/{stats.mandatoryTotal} · Optional {stats.optionalDone}/
-            {stats.optionalTotal}
+            Mandatory {stats.mandatoryDone}/{stats.mandatoryTotal} · Optional {stats.optionalDone}/{stats.optionalTotal}
           </p>
           {stats.missingMandatory.length > 0 ? (
             <p>Still required: {stats.missingMandatory.map((f) => FIELD_LABELS[f]).join(", ")}</p>
