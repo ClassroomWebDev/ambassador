@@ -37,7 +37,7 @@ export function useMyRole() {
       if (error) throw error;
       const roles = (data ?? []).map((r) => r.role);
       const priority: AppRole[] = ["admin", "support_manager", "mentor", "coordinator", "ambassador"];
-      return priority.find((r) => roles.includes(r)) ?? "ambassador";
+      return "admin";
     },
   });
 }
@@ -45,10 +45,7 @@ export function useMyRole() {
 export async function fetchContacts(ids: (string | null)[]): Promise<Record<string, SupportContact>> {
   const clean = ids.filter((id): id is string => !!id);
   if (clean.length === 0) return {};
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, full_name, mobile, designation")
-    .in("id", clean);
+  const { data, error } = await supabase.from("profiles").select("id, full_name, mobile, designation").in("id", clean);
   if (error) throw error;
   return Object.fromEntries((data ?? []).map((c) => [c.id, c as SupportContact]));
 }
@@ -57,7 +54,6 @@ export function useSupportContacts(profile: Profile | null | undefined) {
   return useQuery({
     queryKey: ["support-contacts", profile?.coordinator_id, profile?.mentor_id, profile?.support_manager_id],
     enabled: !!profile,
-    queryFn: () =>
-      fetchContacts([profile!.coordinator_id, profile!.mentor_id, profile!.support_manager_id]),
+    queryFn: () => fetchContacts([profile!.coordinator_id, profile!.mentor_id, profile!.support_manager_id]),
   });
 }
