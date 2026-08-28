@@ -14,6 +14,136 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendances: {
+        Row: {
+          ambassador_id: string
+          created_at: string
+          id: string
+          marked_by: string | null
+          present: boolean
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          ambassador_id: string
+          created_at?: string
+          id?: string
+          marked_by?: string | null
+          present?: boolean
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          ambassador_id?: string
+          created_at?: string
+          id?: string
+          marked_by?: string | null
+          present?: boolean
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendances_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "class_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_sessions: {
+        Row: {
+          course_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          session_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          session_date?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          session_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_sessions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          ambassador_price: number
+          class_quantity: number
+          coordinator_price: number
+          created_at: string
+          created_by: string | null
+          details: string | null
+          has_certificate: boolean
+          id: string
+          leadership_points_per_sale: number
+          learning_points_per_class: number
+          mission: string | null
+          name: string
+          regular_price: number
+          student_price: number
+          updated_at: string
+        }
+        Insert: {
+          ambassador_price?: number
+          class_quantity?: number
+          coordinator_price?: number
+          created_at?: string
+          created_by?: string | null
+          details?: string | null
+          has_certificate?: boolean
+          id?: string
+          leadership_points_per_sale?: number
+          learning_points_per_class?: number
+          mission?: string | null
+          name: string
+          regular_price?: number
+          student_price?: number
+          updated_at?: string
+        }
+        Update: {
+          ambassador_price?: number
+          class_quantity?: number
+          coordinator_price?: number
+          created_at?: string
+          created_by?: string | null
+          details?: string | null
+          has_certificate?: boolean
+          id?: string
+          leadership_points_per_sale?: number
+          learning_points_per_class?: number
+          mission?: string | null
+          name?: string
+          regular_price?: number
+          student_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -36,6 +166,8 @@ export type Database = {
           id: string
           idol: string | null
           institution: string | null
+          leadership_points: number
+          learning_points: number
           mentor_id: string | null
           mobile: string
           mother_name: string | null
@@ -68,6 +200,8 @@ export type Database = {
           id: string
           idol?: string | null
           institution?: string | null
+          leadership_points?: number
+          learning_points?: number
           mentor_id?: string | null
           mobile?: string
           mother_name?: string | null
@@ -100,6 +234,8 @@ export type Database = {
           id?: string
           idol?: string | null
           institution?: string | null
+          leadership_points?: number
+          learning_points?: number
           mentor_id?: string | null
           mobile?: string
           mother_name?: string | null
@@ -135,6 +271,74 @@ export type Database = {
           },
         ]
       }
+      sales: {
+        Row: {
+          ambassador_id: string
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          course_id: string
+          created_at: string
+          id: string
+          invoice_no: string | null
+          payment_method: string
+          status: Database["public"]["Enums"]["sale_status"]
+          student_email: string | null
+          student_institution: string | null
+          student_mobile: string
+          student_name: string
+          submitted_by: string | null
+          tx_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ambassador_id: string
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          invoice_no?: string | null
+          payment_method: string
+          status?: Database["public"]["Enums"]["sale_status"]
+          student_email?: string | null
+          student_institution?: string | null
+          student_mobile: string
+          student_name: string
+          submitted_by?: string | null
+          tx_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ambassador_id?: string
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          invoice_no?: string | null
+          payment_method?: string
+          status?: Database["public"]["Enums"]["sale_status"]
+          student_email?: string | null
+          student_institution?: string | null
+          student_mobile?: string
+          student_name?: string
+          submitted_by?: string | null
+          tx_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -165,7 +369,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_my_ambassador: { Args: { _profile_id: string }; Returns: boolean }
       is_my_supervisor: { Args: { _profile_id: string }; Returns: boolean }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      recalc_points: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
       account_status: "active" | "held"
@@ -175,6 +382,7 @@ export type Database = {
         | "mentor"
         | "support_manager"
         | "admin"
+      sale_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -310,6 +518,7 @@ export const Constants = {
         "support_manager",
         "admin",
       ],
+      sale_status: ["pending", "approved", "rejected"],
     },
   },
 } as const

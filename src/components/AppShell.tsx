@@ -1,16 +1,57 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, LifeBuoy, LogOut, UserRoundCog, Menu, X } from "lucide-react";
+import {
+  BookOpen,
+  CalendarCheck,
+  LayoutDashboard,
+  LifeBuoy,
+  LogOut,
+  Menu,
+  ReceiptText,
+  UserRoundCog,
+  X,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useProfile } from "@/hooks/useProfile";
-import { ROLE_LABELS } from "@/lib/types";
+import { ROLE_LABELS, type AppRole } from "@/lib/types";
 
-const NAV = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/profile", label: "Profile", icon: UserRoundCog },
-  { to: "/support", label: "Support", icon: LifeBuoy },
-] as const;
+type NavItem = { to: "/dashboard" | "/courses" | "/attendance" | "/sales" | "/profile" | "/support"; label: string; icon: typeof LayoutDashboard };
+
+function navForRole(role: AppRole | undefined): NavItem[] {
+  const dashboard: NavItem = { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard };
+  const profile: NavItem = { to: "/profile", label: "Profile", icon: UserRoundCog };
+  const support: NavItem = { to: "/support", label: "Support", icon: LifeBuoy };
+
+  if (role === "admin" || role === "support_manager") {
+    return [
+      dashboard,
+      { to: "/courses", label: "Courses", icon: BookOpen },
+      { to: "/attendance", label: "Attendance", icon: CalendarCheck },
+      { to: "/sales", label: "Sales & Approvals", icon: ReceiptText },
+      support,
+      profile,
+    ];
+  }
+  if (role === "coordinator" || role === "mentor") {
+    return [
+      dashboard,
+      { to: "/attendance", label: "Take Attendance", icon: CalendarCheck },
+      { to: "/sales", label: "Enter Sales", icon: ReceiptText },
+      { to: "/courses", label: "Courses", icon: BookOpen },
+      support,
+      profile,
+    ];
+  }
+  return [
+    dashboard,
+    { to: "/courses", label: "My Opportunities", icon: BookOpen },
+    { to: "/attendance", label: "Attendance Log", icon: CalendarCheck },
+    { to: "/sales", label: "Submit Sales", icon: ReceiptText },
+    support,
+    profile,
+  ];
+}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -19,6 +60,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: profile } = useProfile();
   const { data: role } = useMyRole();
   const [menuOpen, setMenuOpen] = useState(false);
+  const NAV = navForRole(role);
+
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -66,15 +109,34 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {menuOpen ? (
         <div className="sticky top-14 z-30 border-b border-sidebar-border bg-sidebar px-4 pb-4 text-sidebar-foreground md:hidden">
+          <nav className="flex flex-col gap-1 pt-2">
+            {NAV.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setMenuOpen(false)}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
+                  path === item.to
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/75"
+                }`}
+              >
+                <item.icon className="size-4.5" />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
           <UserBlock name={profile?.full_name} role={role ? ROLE_LABELS[role] : undefined} onSignOut={signOut} />
         </div>
       ) : null}
 
+
       <main className="px-4 pb-28 pt-6 md:ml-64 md:px-10 md:pb-14">{children}</main>
 
       {/* Mobile bottom navigation */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-sidebar-border bg-sidebar px-2 pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden">
-        {NAV.map((item) => (
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-sidebar-border bg-sidebar px-2 pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden">
+        {NAV.slice(0, 4).map((item) => (
+
           <Link
             key={item.to}
             to={item.to}
