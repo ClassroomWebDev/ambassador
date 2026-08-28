@@ -1,26 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Users, Award, BookOpen, ArrowRight, Clock, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Homepage,
 });
-import {
-  Users,
-  Award,
-  BookOpen,
-  Calendar,
-  ArrowRight,
-  CheckCircle2,
-  Bell,
-  Clock,
-  ShieldCheck,
-  MapPin,
-  Phone,
-  Globe,
-} from "lucide-react";
 
-export default function Homepage() {
-  // Countdown Timer State
+function Homepage() {
   const [timeLeft, setTimeLeft] = useState({
     days: 12,
     hours: 8,
@@ -60,7 +46,7 @@ export default function Homepage() {
 
           <div className="flex items-center space-x-3">
             <Link
-              to="/login"
+              to="/auth"
               className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold bg-[#991B1B] text-white hover:bg-red-800 transition-colors shadow-sm"
             >
               Sign In
@@ -89,7 +75,7 @@ export default function Homepage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              to="/login"
+              to="/auth"
               className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-semibold bg-[#991B1B] text-white hover:bg-red-800 transition shadow-md group"
             >
               Access Portal
