@@ -8,6 +8,8 @@ import {
   LogOut,
   Menu,
   ReceiptText,
+  Trophy,
+  Users,
   UserRoundCog,
   X,
 } from "lucide-react";
@@ -16,12 +18,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useProfile } from "@/hooks/useProfile";
 import { ROLE_LABELS, type AppRole } from "@/lib/types";
 
-type NavItem = { to: "/dashboard" | "/courses" | "/attendance" | "/sales" | "/profile" | "/support"; label: string; icon: typeof LayoutDashboard };
+type NavItem = {
+  to: "/dashboard" | "/courses" | "/attendance" | "/sales" | "/leaderboard" | "/users" | "/profile" | "/support";
+  label: string;
+  icon: typeof LayoutDashboard;
+};
 
 function navForRole(role: AppRole | undefined): NavItem[] {
   const dashboard: NavItem = { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard };
   const profile: NavItem = { to: "/profile", label: "Profile", icon: UserRoundCog };
   const support: NavItem = { to: "/support", label: "Support", icon: LifeBuoy };
+  const leaderboard: NavItem = { to: "/leaderboard", label: "Leaderboard", icon: Trophy };
 
   if (role === "admin" || role === "support_manager") {
     return [
@@ -29,6 +36,8 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       { to: "/courses", label: "Courses", icon: BookOpen },
       { to: "/attendance", label: "Attendance", icon: CalendarCheck },
       { to: "/sales", label: "Sales & Approvals", icon: ReceiptText },
+      leaderboard,
+      { to: "/users", label: "Users", icon: Users },
       support,
       profile,
     ];
@@ -39,6 +48,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       { to: "/attendance", label: "Take Attendance", icon: CalendarCheck },
       { to: "/sales", label: "Enter Sales", icon: ReceiptText },
       { to: "/courses", label: "Courses", icon: BookOpen },
+      leaderboard,
       support,
       profile,
     ];
@@ -48,6 +58,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
     { to: "/courses", label: "My Opportunities", icon: BookOpen },
     { to: "/attendance", label: "Attendance Log", icon: CalendarCheck },
     { to: "/sales", label: "Submit Sales", icon: ReceiptText },
+    leaderboard,
     support,
     profile,
   ];
