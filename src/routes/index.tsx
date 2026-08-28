@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { createFileRoute, Link } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/")({
+  component: Homepage,
+});
 import {
   Users,
   Award,
