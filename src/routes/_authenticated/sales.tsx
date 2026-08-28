@@ -78,9 +78,19 @@ function SalesEntry() {
   const effectiveAmbassadorId = isAmbassador ? (profile?.id ?? "") : ambassadorId;
 
   async function submit() {
-    if (!courseId) return toast.error("Select a course");
-    if (!effectiveAmbassadorId) return toast.error("Select the ambassador this sale belongs to");
-    if (!studentName.trim() || !studentMobile.trim()) return toast.error("Student name and mobile are required");
+    if (!courseId) {
+      toast.error("Select a course");
+      return;
+    }
+    if (!effectiveAmbassadorId) {
+      toast.error("Select the ambassador this sale belongs to");
+      return;
+    }
+    if (!studentName.trim() || !studentMobile.trim()) {
+      toast.error("Student name and mobile are required");
+      return;
+    }
+
 
     setSaving(true);
     const { data: userData } = await supabase.auth.getUser();
