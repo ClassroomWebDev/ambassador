@@ -2,10 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Loader2, Send } from "lucide-react";
+import { BadgeCheck, Loader2, Printer, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useProfile } from "@/hooks/useProfile";
-import { isStaffRole, useCourses, useSales, useTeam } from "@/hooks/useBusiness";
+import { isStaffRole, useCourses, useProgramSettings, useSales, useTeam, type Sale } from "@/hooks/useBusiness";
+import { MoneyReceipt } from "@/components/MoneyReceipt";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,6 +72,8 @@ function SalesEntry() {
   const [studentEmail, setStudentEmail] = useState("");
   const [studentInstitution, setStudentInstitution] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<string>(PAYMENT_METHODS[0]);
+  const [orderNo, setOrderNo] = useState("");
+  const [paymentRef, setPaymentRef] = useState("");
   const [saving, setSaving] = useState(false);
 
   const course = useMemo(() => (courses ?? []).find((c) => c.id === courseId) ?? null, [courses, courseId]);
@@ -103,6 +106,8 @@ function SalesEntry() {
       student_email: studentEmail.trim() || null,
       student_institution: studentInstitution.trim() || null,
       payment_method: paymentMethod,
+      order_no: orderNo.trim() || null,
+      payment_ref: paymentRef.trim() || null,
       amount,
     });
     setSaving(false);
@@ -115,6 +120,8 @@ function SalesEntry() {
     setStudentMobile("");
     setStudentEmail("");
     setStudentInstitution("");
+    setOrderNo("");
+    setPaymentRef("");
     void queryClient.invalidateQueries({ queryKey: ["sales"] });
   }
 
@@ -196,6 +203,16 @@ function SalesEntry() {
               </option>
             ))}
           </select>
+        </div>
+        <div className="grid gap-1.5">
+          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Order number</Label>
+          <Input value={orderNo} onChange={(e) => setOrderNo(e.target.value)} />
+        </div>
+        <div className="grid gap-1.5">
+          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Payment reference
+          </Label>
+          <Input value={paymentRef} onChange={(e) => setPaymentRef(e.target.value)} />
         </div>
       </div>
       <Button className="mt-6" onClick={() => void submit()} disabled={saving}>
@@ -283,6 +300,8 @@ function Approvals() {
 function MySales() {
   const { data: sales, isLoading } = useSales();
   const { data: courses } = useCourses();
+  const { data: settings } = useProgramSettings();
+  const [receipt, setReceipt] = useState<Sale | null>(null);
 
   return (
     <section className="space-y-4">
@@ -310,14 +329,27 @@ function MySales() {
                 </Badge>
               </div>
               {s.status === "approved" ? (
-                <p className="mt-3 text-xs font-medium text-muted-foreground">
-                  Invoice {s.invoice_no} · TX {s.tx_id}
-                </p>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Invoice {s.invoice_no} · TX {s.tx_id}
+                  </p>
+                  <Button size="sm" variant="secondary" onClick={() => setReceipt(s)}>
+                    <Printer className="size-3.5" /> Money receipt
+                  </Button>
+                </div>
               ) : null}
             </article>
           ))}
         </div>
       )}
+      {receipt ? (
+        <MoneyReceipt
+          sale={receipt}
+          course={(courses ?? []).find((c) => c.id === receipt.course_id) ?? null}
+          settings={settings ?? null}
+          onClose={() => setReceipt(null)}
+        />
+      ) : null}
     </section>
   );
 }
