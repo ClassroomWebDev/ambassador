@@ -148,6 +148,7 @@ export type Database = {
         Row: {
           address: string | null
           alt_mobile: string | null
+          auto_id: string | null
           blood_group: string | null
           coordinator_id: string | null
           created_at: string
@@ -182,6 +183,7 @@ export type Database = {
         Insert: {
           address?: string | null
           alt_mobile?: string | null
+          auto_id?: string | null
           blood_group?: string | null
           coordinator_id?: string | null
           created_at?: string
@@ -216,6 +218,7 @@ export type Database = {
         Update: {
           address?: string | null
           alt_mobile?: string | null
+          auto_id?: string | null
           blood_group?: string | null
           coordinator_id?: string | null
           created_at?: string
@@ -271,6 +274,89 @@ export type Database = {
           },
         ]
       }
+      program_settings: {
+        Row: {
+          created_at: string
+          id: boolean
+          org_address: string | null
+          org_facebook: string | null
+          org_helpline: string | null
+          org_name: string
+          org_website: string | null
+          season_start: string
+          season_target_points: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: boolean
+          org_address?: string | null
+          org_facebook?: string | null
+          org_helpline?: string | null
+          org_name?: string
+          org_website?: string | null
+          season_start?: string
+          season_target_points?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: boolean
+          org_address?: string | null
+          org_facebook?: string | null
+          org_helpline?: string | null
+          org_name?: string
+          org_website?: string | null
+          season_start?: string
+          season_target_points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prospects: {
+        Row: {
+          ambassador_id: string
+          created_at: string
+          facebook_link: string | null
+          id: string
+          mobile: string
+          name: string
+          note: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ambassador_id: string
+          created_at?: string
+          facebook_link?: string | null
+          id?: string
+          mobile: string
+          name: string
+          note?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ambassador_id?: string
+          created_at?: string
+          facebook_link?: string | null
+          id?: string
+          mobile?: string
+          name?: string
+          note?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospects_ambassador_id_fkey"
+            columns: ["ambassador_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales: {
         Row: {
           ambassador_id: string
@@ -281,7 +367,9 @@ export type Database = {
           created_at: string
           id: string
           invoice_no: string | null
+          order_no: string | null
           payment_method: string
+          payment_ref: string | null
           status: Database["public"]["Enums"]["sale_status"]
           student_email: string | null
           student_institution: string | null
@@ -300,7 +388,9 @@ export type Database = {
           created_at?: string
           id?: string
           invoice_no?: string | null
+          order_no?: string | null
           payment_method: string
+          payment_ref?: string | null
           status?: Database["public"]["Enums"]["sale_status"]
           student_email?: string | null
           student_institution?: string | null
@@ -319,7 +409,9 @@ export type Database = {
           created_at?: string
           id?: string
           invoice_no?: string | null
+          order_no?: string | null
           payment_method?: string
+          payment_ref?: string | null
           status?: Database["public"]["Enums"]["sale_status"]
           student_email?: string | null
           student_institution?: string | null
@@ -369,10 +461,40 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_downstream: { Args: { _profile_id: string }; Returns: boolean }
       is_my_ambassador: { Args: { _profile_id: string }; Returns: boolean }
       is_my_supervisor: { Args: { _profile_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      leaderboard_top: {
+        Args: { _limit?: number }
+        Returns: {
+          auto_id: string
+          full_name: string
+          institution: string
+          leadership_points: number
+          learning_points: number
+          rank: number
+          total_points: number
+          user_id: string
+        }[]
+      }
+      my_leaderboard_rank: {
+        Args: never
+        Returns: {
+          leader_points: number
+          rank: number
+          total_points: number
+        }[]
+      }
+      next_auto_id: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: string
+      }
       recalc_points: { Args: { _user_id: string }; Returns: undefined }
+      role_prefix: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: string
+      }
     }
     Enums: {
       account_status: "active" | "held"
