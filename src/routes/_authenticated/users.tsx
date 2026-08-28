@@ -27,8 +27,9 @@ export const Route = createFileRoute("/_authenticated/users")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: UsersPage;
+  component: UsersPage,
 });
+
 
 type NewRole = "mentor" | "coordinator" | "ambassador";
 
