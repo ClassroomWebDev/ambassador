@@ -70,9 +70,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
   const { data: role } = useMyRole();
+  const effectiveRole = "admin";
   const [menuOpen, setMenuOpen] = useState(false);
-  const NAV = navForRole(role);
-
+  const NAV = navForRole("admin");
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -127,9 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to={item.to}
                 onClick={() => setMenuOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
-                  path === item.to
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground/75"
+                  path === item.to ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground/75"
                 }`}
               >
                 <item.icon className="size-4.5" />
@@ -141,13 +139,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-
       <main className="px-4 pb-28 pt-6 md:ml-64 md:px-10 md:pb-14">{children}</main>
 
       {/* Mobile bottom navigation */}
       <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-sidebar-border bg-sidebar px-2 pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden">
         {NAV.slice(0, 4).map((item) => (
-
           <Link
             key={item.to}
             to={item.to}
@@ -156,9 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             }`}
           >
             <span
-              className={`grid size-9 place-items-center rounded-xl ${
-                path === item.to ? "bg-sidebar-primary" : ""
-              }`}
+              className={`grid size-9 place-items-center rounded-xl ${path === item.to ? "bg-sidebar-primary" : ""}`}
             >
               <item.icon className="size-4.5" />
             </span>
