@@ -106,3 +106,64 @@ export function useSessionAttendance(sessionId: string | null) {
     },
   });
 }
+
+export type ProgramSettings = Database["public"]["Tables"]["program_settings"]["Row"];
+export type Prospect = Database["public"]["Tables"]["prospects"]["Row"];
+export type LeaderRow = {
+  rank: number;
+  user_id: string;
+  auto_id: string | null;
+  full_name: string;
+  institution: string | null;
+  learning_points: number;
+  leadership_points: number;
+  total_points: number;
+};
+
+export function useProgramSettings() {
+  return useQuery({
+    queryKey: ["program-settings"],
+    queryFn: async (): Promise<ProgramSettings | null> => {
+      const { data, error } = await supabase.from("program_settings").select("*").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useLeaderboard(limit = 10) {
+  return useQuery({
+    queryKey: ["leaderboard", limit],
+    queryFn: async (): Promise<LeaderRow[]> => {
+      const { data, error } = await supabase.rpc("leaderboard_top", { _limit: limit });
+      if (error) throw error;
+      return (data ?? []) as unknown as LeaderRow[];
+    },
+  });
+}
+
+export function useMyRank() {
+  return useQuery({
+    queryKey: ["my-rank"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("my_leaderboard_rank");
+      if (error) throw error;
+      const row = (data ?? [])[0] as { rank: number; total_points: number; leader_points: number } | undefined;
+      return row ?? null;
+    },
+  });
+}
+
+export function useProspects() {
+  return useQuery({
+    queryKey: ["prospects"],
+    queryFn: async (): Promise<Prospect[]> => {
+      const { data, error } = await supabase
+        .from("prospects")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
