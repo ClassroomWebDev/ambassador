@@ -1,92 +1,184 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, LifeBuoy, GaugeCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  Users,
+  Award,
+  BookOpen,
+  Calendar,
+  ArrowRight,
+  CheckCircle2,
+  Bell,
+  Clock,
+  ShieldCheck,
+  MapPin,
+  Phone,
+  Globe,
+} from "lucide-react";
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Ambassador Hub — Member Profiles & Support" },
-      {
-        name: "description",
-        content:
-          "Ambassador Hub keeps member profiles complete and connects ambassadors, coordinators and mentors to their support team.",
-      },
-      { property: "og:title", content: "Ambassador Hub — Member Profiles & Support" },
-      {
-        property: "og:description",
-        content: "Complete your profile to 100% and reach your assigned support team instantly.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Landing,
-});
+export default function Homepage() {
+  // Countdown Timer State
+  const [timeLeft, setTimeLeft] = useState({
+    days: 12,
+    hours: 8,
+    minutes: 45,
+    seconds: 30,
+  });
 
-const FEATURES = [
-  {
-    icon: GaugeCircle,
-    title: "100% profile engine",
-    body: "A live completion bar guides members through every mandatory and optional field.",
-  },
-  {
-    icon: LifeBuoy,
-    title: "Role-aware support hub",
-    body: "Ambassadors, coordinators and mentors each see exactly the contacts they need.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Compliance hold gate",
-    body: "Accounts on hold are signed out instantly and shown their support manager.",
-  },
-];
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-function Landing() {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-6">
-        <div className="flex items-center gap-2.5">
-          <span className="grid size-9 place-items-center rounded-xl bg-primary font-display text-sm font-bold text-primary-foreground">
-            AH
-          </span>
-          <span className="font-display text-base font-semibold">Ambassador Hub</span>
+    <div className="min-h-screen bg-[#FAFAFA] text-slate-900 font-sans flex flex-col justify-between">
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-lg bg-[#991B1B] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+              CA
+            </div>
+            <div>
+              <span className="font-bold text-lg tracking-tight text-slate-900 block leading-tight">
+                Classroom Ambassador
+              </span>
+              <span className="text-xs text-slate-500 font-medium">Empowering Campus Leaders</span>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold bg-[#991B1B] text-white hover:bg-red-800 transition-colors shadow-sm"
+            >
+              Sign In
+            </Link>
+          </div>
         </div>
-        <Button asChild variant="outline">
-          <Link to="/auth">Sign in</Link>
-        </Button>
       </header>
 
-      <main className="mx-auto max-w-6xl px-5 pb-20">
-        <section className="rounded-4xl bg-surface-dark px-6 py-16 text-surface-dark-foreground sm:px-12 sm:py-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-surface-dark-foreground/60">
-            Member platform
-          </p>
-          <h1 className="mt-4 max-w-2xl font-display text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
-            Every member profile, complete and compliant.
+      {/* Main Content */}
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-[#991B1B] text-xs font-semibold uppercase tracking-wider mb-6">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Official Leadership Platform</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
+            Classroom <span className="text-[#991B1B]">Ambassador</span> Program
           </h1>
-          <p className="mt-5 max-w-xl text-base text-surface-dark-foreground/75">
-            Sign in to update your profile, track completion in real time, and reach your coordinator,
-            mentor or support manager in one tap.
+
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Empowering youth leadership & excellence across campuses. Track your performance, attend masterclasses, earn
+            points, and build your executive career.
           </p>
-          <Button asChild size="lg" className="mt-8">
-            <Link to="/auth">
-              Get started <ArrowRight className="size-4" />
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/login"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-semibold bg-[#991B1B] text-white hover:bg-red-800 transition shadow-md group"
+            >
+              Access Portal
+              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-          </Button>
+          </div>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
-          {FEATURES.map((f) => (
-            <article key={f.title} className="rounded-2xl border border-border bg-card p-6 shadow-card">
-              <span className="grid size-11 place-items-center rounded-xl bg-accent text-primary">
-                <f.icon className="size-5" />
-              </span>
-              <h2 className="mt-4 font-display text-lg font-semibold">{f.title}</h2>
-              <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
-            </article>
-          ))}
+        {/* Live Event Countdown Banner */}
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 mb-16">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center space-x-2 text-[#991B1B] font-semibold text-sm mb-1">
+                  <Clock className="w-4 h-4" />
+                  <span>Next Major Campus Meetup</span>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">National Ambassador Conference 2026</h2>
+              </div>
+
+              {/* Countdown Digits */}
+              <div className="flex items-center space-x-3">
+                {[
+                  { label: "Days", val: timeLeft.days },
+                  { label: "Hours", val: timeLeft.hours },
+                  { label: "Mins", val: timeLeft.minutes },
+                  { label: "Secs", val: timeLeft.seconds },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-slate-50 border border-slate-200 rounded-xl p-3 w-16 text-center shadow-inner"
+                  >
+                    <span className="block text-xl font-extrabold text-slate-900 font-mono">
+                      {String(item.val).padStart(2, "0")}
+                    </span>
+                    <span className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Overview Cards */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-red-50 text-[#991B1B] flex items-center justify-center mb-4">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-900 mb-2">Learning Points</h2>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Join scheduled masterclasses and interactive sessions. Attendance marked by your Coordinator credits
+                direct learning points.
+              </p>
+            </div>
+
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center mb-4">
+                <Award className="w-6 h-6" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-900 mb-2">Leadership Points</h2>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Drive verified course enrollments across your campus at exclusive Student Special Prices to climb the
+                centralized Leaderboard.
+              </p>
+            </div>
+
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-red-50 text-[#991B1B] flex items-center justify-center mb-4">
+                <Users className="w-6 h-6" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-900 mb-2">Hierarchical Support</h2>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Access your designated Coordinator, Mentor, and Company Support Manager directly from your private
+                support dashboard.
+              </p>
+            </div>
+          </div>
         </section>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-slate-200 py-8 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>© 2026 Classroom Ambassador Program. All rights reserved.</p>
+          <div className="flex items-center space-x-6">
+            <span>Support Helpline: Available in User Dashboard</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
