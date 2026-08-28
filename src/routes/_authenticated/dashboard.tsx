@@ -88,7 +88,7 @@ function dailySeries(sales: Sale[]) {
 
 function Dashboard() {
   const { data: profile } = useProfile();
-  const role = "admin";
+  const role: AppRole = "admin";
   const { data: sales } = useSales();
   const { data: settings } = useProgramSettings();
   const stats = profileCompletion((profile ?? {}) as Record<string, unknown>);
