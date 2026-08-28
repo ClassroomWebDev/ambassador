@@ -109,9 +109,27 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {menuOpen ? (
         <div className="sticky top-14 z-30 border-b border-sidebar-border bg-sidebar px-4 pb-4 text-sidebar-foreground md:hidden">
+          <nav className="flex flex-col gap-1 pt-2">
+            {NAV.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setMenuOpen(false)}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
+                  path === item.to
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/75"
+                }`}
+              >
+                <item.icon className="size-4.5" />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
           <UserBlock name={profile?.full_name} role={role ? ROLE_LABELS[role] : undefined} onSignOut={signOut} />
         </div>
       ) : null}
+
 
       <main className="px-4 pb-28 pt-6 md:ml-64 md:px-10 md:pb-14">{children}</main>
 
