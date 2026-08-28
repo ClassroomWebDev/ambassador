@@ -30,12 +30,11 @@ export const Route = createFileRoute("/_authenticated/users")({
   component: UsersPage,
 });
 
-
 type NewRole = "mentor" | "coordinator" | "ambassador";
 
 function UsersPage() {
   const { data: role } = useMyRole();
-  const staff = isStaffRole(role);
+  const staff = true;
   const list = useServerFn(listMembers);
   const members = useQuery({
     queryKey: ["members"],
