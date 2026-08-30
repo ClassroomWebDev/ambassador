@@ -101,7 +101,7 @@ const facebookSchema = z
   .max(300)
   .refine((v) => /facebook\.com|fb\.com|fb\.me/i.test(v), "Enter a valid Facebook profile link");
 
-const LONG_KEYS: EditableKey[] = ["career_objective", "present_address", "permanent_address"];
+const LONG_KEYS: EditableKey[] = ["career_objective", "experience", "present_address", "permanent_address"];
 const SIGNATURE_TEXT_PREFIX = "text:";
 
 function useSignedUrl(path: string | null) {
@@ -286,6 +286,7 @@ function ProfilePage() {
     presentAddress: form.present_address,
     permanentAddress: form.permanent_address,
     careerObjective: form.career_objective,
+    experience: form.experience,
     education: education.filter((r) => r.degree.trim() || r.institute.trim()),
     technicalSkills: form.technical_skills,
     softSkills: form.soft_skills,
@@ -299,6 +300,22 @@ function ProfilePage() {
     photoUrl: photoUrl,
     signatureUrl: signatureUrl,
     signatureText,
+    references: [
+      {
+        name: form.ref1_name,
+        designation: form.ref1_designation,
+        phone: form.ref1_phone,
+        email: form.ref1_email,
+        relation: form.ref1_relation,
+      },
+      {
+        name: form.ref2_name,
+        designation: form.ref2_designation,
+        phone: form.ref2_phone,
+        email: form.ref2_email,
+        relation: form.ref2_relation,
+      },
+    ].filter((r) => r.name.trim()),
   };
 
   if (isLoading || !profile) {
@@ -432,6 +449,17 @@ function ProfilePage() {
               onChange={(e) => set("career_objective")(e.target.value)}
               rows={4}
               placeholder="A short professional summary of your goals and strengths."
+            />
+          </Field>
+        </Section>
+
+        <Section title="Experience & activities">
+          <Field label="Experience" full>
+            <Textarea
+              value={form.experience}
+              onChange={(e) => set("experience")(e.target.value)}
+              rows={4}
+              placeholder="Roles, responsibilities, volunteering and achievements — one per line."
             />
           </Field>
         </Section>
@@ -596,6 +624,48 @@ function ProfilePage() {
           <Field label="WhatsApp Number">
             <Input value={form.whatsapp} onChange={(e) => set("whatsapp")(e.target.value)} />
           </Field>
+        </Section>
+
+        <Section title="References (optional)">
+          <div className="col-span-full grid gap-4 md:grid-cols-2">
+            {([1, 2] as const).map((n) => (
+              <div key={n} className="space-y-3 rounded-2xl border border-border p-4">
+                <p className="text-sm font-semibold">Reference {n}</p>
+                <Field label="Name" full>
+                  <Input
+                    value={form[`ref${n}_name`]}
+                    onChange={(e) => set(`ref${n}_name`)(e.target.value)}
+                  />
+                </Field>
+                <Field label="Designation & Organization" full>
+                  <Input
+                    value={form[`ref${n}_designation`]}
+                    onChange={(e) => set(`ref${n}_designation`)(e.target.value)}
+                    placeholder="Lecturer, Dhaka College"
+                  />
+                </Field>
+                <Field label="Phone" full>
+                  <Input
+                    value={form[`ref${n}_phone`]}
+                    onChange={(e) => set(`ref${n}_phone`)(e.target.value)}
+                  />
+                </Field>
+                <Field label="Email" full>
+                  <Input
+                    value={form[`ref${n}_email`]}
+                    onChange={(e) => set(`ref${n}_email`)(e.target.value)}
+                  />
+                </Field>
+                <Field label="Relation" full>
+                  <Input
+                    value={form[`ref${n}_relation`]}
+                    onChange={(e) => set(`ref${n}_relation`)(e.target.value)}
+                    placeholder="Academic supervisor"
+                  />
+                </Field>
+              </div>
+            ))}
+          </div>
         </Section>
 
         <Section title="Digital signature">
