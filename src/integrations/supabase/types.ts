@@ -150,10 +150,12 @@ export type Database = {
           alt_mobile: string | null
           auto_id: string | null
           blood_group: string | null
+          career_objective: string | null
           coordinator_id: string | null
           created_at: string
           date_of_birth: string | null
           designation: string | null
+          education: Json
           facebook_link: string | null
           father_name: string | null
           favourite_book: string | null
@@ -167,15 +169,24 @@ export type Database = {
           id: string
           idol: string | null
           institution: string | null
+          languages: string | null
           leadership_points: number
           learning_points: number
+          marital_status: string | null
           mentor_id: string | null
           mobile: string
           mother_name: string | null
+          nid_no: string | null
+          permanent_address: string | null
           photo_url: string | null
+          present_address: string | null
+          professional_title: string | null
           religion: string | null
+          signature_url: string | null
+          soft_skills: string | null
           status: Database["public"]["Enums"]["account_status"]
           support_manager_id: string | null
+          technical_skills: string | null
           ultimate_goal: string | null
           updated_at: string
           whatsapp: string | null
@@ -185,10 +196,12 @@ export type Database = {
           alt_mobile?: string | null
           auto_id?: string | null
           blood_group?: string | null
+          career_objective?: string | null
           coordinator_id?: string | null
           created_at?: string
           date_of_birth?: string | null
           designation?: string | null
+          education?: Json
           facebook_link?: string | null
           father_name?: string | null
           favourite_book?: string | null
@@ -202,15 +215,24 @@ export type Database = {
           id: string
           idol?: string | null
           institution?: string | null
+          languages?: string | null
           leadership_points?: number
           learning_points?: number
+          marital_status?: string | null
           mentor_id?: string | null
           mobile?: string
           mother_name?: string | null
+          nid_no?: string | null
+          permanent_address?: string | null
           photo_url?: string | null
+          present_address?: string | null
+          professional_title?: string | null
           religion?: string | null
+          signature_url?: string | null
+          soft_skills?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           support_manager_id?: string | null
+          technical_skills?: string | null
           ultimate_goal?: string | null
           updated_at?: string
           whatsapp?: string | null
@@ -220,10 +242,12 @@ export type Database = {
           alt_mobile?: string | null
           auto_id?: string | null
           blood_group?: string | null
+          career_objective?: string | null
           coordinator_id?: string | null
           created_at?: string
           date_of_birth?: string | null
           designation?: string | null
+          education?: Json
           facebook_link?: string | null
           father_name?: string | null
           favourite_book?: string | null
@@ -237,15 +261,24 @@ export type Database = {
           id?: string
           idol?: string | null
           institution?: string | null
+          languages?: string | null
           leadership_points?: number
           learning_points?: number
+          marital_status?: string | null
           mentor_id?: string | null
           mobile?: string
           mother_name?: string | null
+          nid_no?: string | null
+          permanent_address?: string | null
           photo_url?: string | null
+          present_address?: string | null
+          professional_title?: string | null
           religion?: string | null
+          signature_url?: string | null
+          soft_skills?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           support_manager_id?: string | null
+          technical_skills?: string | null
           ultimate_goal?: string | null
           updated_at?: string
           whatsapp?: string | null

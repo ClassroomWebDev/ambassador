@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ArrowRight, Loader2, Plus, Target } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { useMyRole, useProfile } from "@/hooks/useProfile";
+import { useMyRole, useProfile, useSessionUser } from "@/hooks/useProfile";
 import {
   isStaffRole,
   useCourses,
@@ -18,7 +18,9 @@ import {
 import { profileCompletion, FIELD_LABELS } from "@/lib/profile-meta";
 import { ROLE_LABELS } from "@/lib/types";
 import { Leaderboard } from "@/components/Leaderboard";
+import { BirthdayBanner } from "@/components/BirthdayBanner";
 import { SupportHub } from "@/components/SupportHub";
+
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,10 +90,14 @@ function dailySeries(sales: Sale[]) {
 
 function Dashboard() {
   const { data: profile } = useProfile();
+  const { data: user } = useSessionUser();
   const { data: role } = useMyRole();
   const { data: sales } = useSales();
   const { data: settings } = useProgramSettings();
-  const stats = profileCompletion((profile ?? {}) as Record<string, unknown>);
+  const stats = profileCompletion({
+    ...((profile ?? {}) as Record<string, unknown>),
+    email: user?.email ?? "",
+  });
   const staff = isStaffRole(role);
 
   const rows = sales ?? [];
@@ -101,6 +107,7 @@ function Dashboard() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-10">
+      <BirthdayBanner fullName={profile?.full_name} dateOfBirth={profile?.date_of_birth} />
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
           {role ? ROLE_LABELS[role] : "Member"} {profile?.auto_id ? `· ${profile.auto_id}` : ""}
@@ -109,6 +116,7 @@ function Dashboard() {
           Hello, {profile?.full_name?.split(" ")[0] || "there"}
         </h1>
       </header>
+
 
       <section className="space-y-4">
         <h2 className="font-display text-xl font-semibold">Opportunity performance</h2>
