@@ -110,7 +110,7 @@ function Dashboard() {
   const pending = rows.filter((s) => s.status === "pending").length;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-10">
+    <div className="space-y-10">
       <BirthdayBanner fullName={profile?.full_name} dateOfBirth={profile?.date_of_birth} />
       {!role || role === "ambassador" ? <AmbassadorHero /> : null}
       <header>
