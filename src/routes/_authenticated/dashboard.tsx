@@ -109,6 +109,7 @@ function Dashboard() {
   return (
     <div className="mx-auto max-w-5xl space-y-10">
       <BirthdayBanner fullName={profile?.full_name} dateOfBirth={profile?.date_of_birth} />
+      {!role || role === "ambassador" ? <AmbassadorHero /> : null}
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
           {role ? ROLE_LABELS[role] : "Member"} {profile?.auto_id ? `· ${profile.auto_id}` : ""}
@@ -118,7 +119,10 @@ function Dashboard() {
         </h1>
       </header>
 
+      <SeasonCountdown />
+
       <NoticeWidget />
+
 
       <section className="space-y-4">
         <h2 className="font-display text-xl font-semibold">Opportunity performance</h2>
