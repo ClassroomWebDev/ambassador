@@ -37,7 +37,7 @@ export function useMyRole() {
       if (error) throw error;
       const roles = (data ?? []).map((r) => r.role);
       const priority: AppRole[] = ["admin", "support_manager", "mentor", "coordinator", "ambassador"];
-      return "admin";
+      return priority.find((r) => roles.includes(r)) ?? "ambassador";
     },
   });
 }
