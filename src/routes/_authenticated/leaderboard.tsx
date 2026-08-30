@@ -26,7 +26,7 @@ function LeaderboardPage() {
   const canSeeCoordinators = role === "admin" || role === "support_manager" || role === "mentor";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <div className="space-y-8">
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Rankings</p>
         <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Season leaderboard</h1>

@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/support")({
 
 function SupportPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="space-y-6">
       <header>
         <h1 className="font-display text-3xl font-bold tracking-tight">Support Hub</h1>
         <p className="mt-2 text-sm text-muted-foreground">

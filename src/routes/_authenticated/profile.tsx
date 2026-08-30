@@ -330,7 +330,7 @@ function ProfilePage() {
         : "bg-amber-100 text-amber-900";
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <BirthdayBanner fullName={profile.full_name} dateOfBirth={profile.date_of_birth} />
 
       <header className="flex flex-wrap items-start justify-between gap-3">

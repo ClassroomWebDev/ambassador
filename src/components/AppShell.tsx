@@ -121,9 +121,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       {/* Desktop side navigation */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-sidebar px-5 py-7 text-sidebar-foreground md:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-sidebar px-5 py-7 text-sidebar-foreground lg:flex">
         <div className="flex items-center justify-between">
           <Brand />
           <NotificationBell />
@@ -147,47 +147,80 @@ export function AppShell({ children }: { children: ReactNode }) {
         <UserBlock name={profile?.full_name} role={role ? ROLE_LABELS[role] : undefined} onSignOut={signOut} />
       </aside>
 
-      {/* Mobile top bar */}
-      <header className="sticky top-0 z-40 flex items-center justify-between bg-sidebar px-4 py-3 text-sidebar-foreground md:hidden">
+      {/* Mobile / tablet top bar */}
+      <header className="sticky top-0 z-40 flex items-center justify-between bg-sidebar px-4 py-3 text-sidebar-foreground lg:hidden">
         <Brand />
         <div className="flex items-center gap-1">
           <NotificationBell />
-        <button
-          type="button"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMenuOpen((o) => !o)}
-          className="rounded-lg p-2 hover:bg-sidebar-accent"
-        >
-          {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+          <button
+            type="button"
+            aria-label="Open menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(true)}
+            className="rounded-lg p-2 hover:bg-sidebar-accent"
+          >
+            <Menu className="size-5" />
+          </button>
         </div>
       </header>
 
-      {menuOpen ? (
-        <div className="sticky top-14 z-30 border-b border-sidebar-border bg-sidebar px-4 pb-4 text-sidebar-foreground md:hidden">
-          <nav className="flex flex-col gap-1 pt-2">
+      {/* Slide-out drawer navigation (<1024px) */}
+      <div
+        className={`fixed inset-0 z-50 lg:hidden ${menuOpen ? "" : "pointer-events-none"}`}
+        aria-hidden={!menuOpen}
+      >
+        <button
+          type="button"
+          tabIndex={menuOpen ? 0 : -1}
+          aria-label="Close menu"
+          onClick={() => setMenuOpen(false)}
+          className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${
+            menuOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
+        <aside
+          className={`absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col overflow-y-auto bg-sidebar px-5 py-6 text-sidebar-foreground shadow-raised transition-transform duration-300 ease-out ${
+            menuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <Brand />
+            <button
+              type="button"
+              aria-label="Close menu"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg p-2 hover:bg-sidebar-accent"
+            >
+              <X className="size-5" />
+            </button>
+          </div>
+          <nav className="mt-6 flex flex-1 flex-col gap-1">
             {NAV.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 onClick={() => setMenuOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
-                  path === item.to ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground/75"
+                  path === item.to
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/75 hover:bg-sidebar-accent"
                 }`}
               >
-                <item.icon className="size-4.5" />
-                {item.label}
+                <item.icon className="size-4.5 shrink-0" />
+                <span className="truncate">{item.label}</span>
               </Link>
             ))}
           </nav>
           <UserBlock name={profile?.full_name} role={role ? ROLE_LABELS[role] : undefined} onSignOut={signOut} />
-        </div>
-      ) : null}
+        </aside>
+      </div>
 
-      <main className="px-4 pb-28 pt-6 md:ml-64 md:px-10 md:pb-14">{children}</main>
+      <div className="lg:ml-64">
+        <main className="mx-auto w-full max-w-7xl space-y-6 px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-14">{children}</main>
+      </div>
 
       {/* Mobile bottom navigation */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-sidebar-border bg-sidebar px-2 pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-sidebar-border bg-sidebar px-2 pb-[env(safe-area-inset-bottom)] text-sidebar-foreground lg:hidden">
         {NAV.slice(0, 4).map((item) => (
           <Link
             key={item.to}

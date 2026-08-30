@@ -113,7 +113,7 @@ function UsersPage() {
 
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="space-y-8">
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Administration</p>
         <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">User management</h1>
