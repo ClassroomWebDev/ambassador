@@ -276,8 +276,14 @@ function CoursesPage() {
             No courses yet.
           </p>
         ) : (
-          <div className="grid gap-4">
-            {(courses ?? []).map((c) => (
+          (() => {
+            const withProgress = (courses ?? []).map((c) => ({ course: c, progress: courseProgress(c, sessions ?? []) }));
+            const buckets: Record<Lifecycle, typeof withProgress> = {
+              running: withProgress.filter((x) => x.progress.lifecycle === "running"),
+              completed: withProgress.filter((x) => x.progress.lifecycle === "completed"),
+              upcoming: withProgress.filter((x) => x.progress.lifecycle === "upcoming"),
+            };
+            const renderCard = ({ course: c, progress }: (typeof withProgress)[number]) => (
               <article key={c.id} className="rounded-3xl border border-border bg-card p-6 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -285,6 +291,9 @@ function CoursesPage() {
                     {c.mission ? <p className="text-sm text-muted-foreground">{c.mission}</p> : null}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={progress.lifecycle === "completed" ? "default" : "secondary"}>
+                      {LIFECYCLE_LABELS[progress.lifecycle]}
+                    </Badge>
                     <Badge variant="secondary">{c.class_quantity} classes</Badge>
                     {c.has_certificate ? (
                       <Badge className="gap-1">
@@ -294,6 +303,27 @@ function CoursesPage() {
                   </div>
                 </div>
                 {c.details ? <p className="mt-3 text-sm text-muted-foreground">{c.details}</p> : null}
+
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                    <span>
+                      Progress · {progress.completedClasses}/{progress.totalClasses} classes
+                    </span>
+                    <span>{progress.percent === 100 ? "100% Completed" : `${progress.percent}%`}</span>
+                  </div>
+                  <div className="mt-1.5 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-500"
+                      style={{ width: `${progress.percent}%` }}
+                    />
+                  </div>
+                  {c.start_date || c.end_date ? (
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      {c.start_date ?? "—"} → {c.end_date ?? "—"}
+                    </p>
+                  ) : null}
+                </div>
+
                 <dl className="mt-5 grid gap-3 sm:grid-cols-4">
                   <PriceCell label="Regular" value={money(c.regular_price)} />
                   <PriceCell label="Student special" value={money(c.student_price)} highlight />
@@ -315,9 +345,30 @@ function CoursesPage() {
                   </div>
                 ) : null}
               </article>
-            ))}
-          </div>
+            );
+            return (
+              <Tabs defaultValue="running">
+                <TabsList className="flex-wrap">
+                  <TabsTrigger value="running">Running ({buckets.running.length})</TabsTrigger>
+                  <TabsTrigger value="completed">Completed ({buckets.completed.length})</TabsTrigger>
+                  <TabsTrigger value="upcoming">Upcoming ({buckets.upcoming.length})</TabsTrigger>
+                </TabsList>
+                {(["running", "completed", "upcoming"] as Lifecycle[]).map((key) => (
+                  <TabsContent key={key} value={key} className="mt-4 grid gap-4">
+                    {buckets[key].length === 0 ? (
+                      <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+                        No {LIFECYCLE_LABELS[key].toLowerCase()} courses.
+                      </p>
+                    ) : (
+                      buckets[key].map(renderCard)
+                    )}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            );
+          })()
         )}
+
       </section>
 
       {staff ? (
