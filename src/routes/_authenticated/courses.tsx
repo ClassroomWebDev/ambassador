@@ -6,6 +6,9 @@ import { Award, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole } from "@/hooks/useProfile";
 import { isStaffRole, useCourses, useSessions, type Course } from "@/hooks/useBusiness";
+import { courseProgress, LIFECYCLE_LABELS, type Lifecycle } from "@/lib/course-progress";
+import { fetchActiveSeasonId } from "@/hooks/useSeasons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +38,8 @@ type CourseForm = {
   mission: string;
   details: string;
   class_quantity: string;
+  start_date: string;
+  end_date: string;
   has_certificate: boolean;
   regular_price: string;
   student_price: string;
@@ -49,6 +54,8 @@ const EMPTY: CourseForm = {
   mission: "",
   details: "",
   class_quantity: "1",
+  start_date: "",
+  end_date: "",
   has_certificate: false,
   regular_price: "0",
   student_price: "0",
@@ -87,6 +94,8 @@ function CoursesPage() {
       mission: c.mission ?? "",
       details: c.details ?? "",
       class_quantity: String(c.class_quantity),
+      start_date: c.start_date ?? "",
+      end_date: c.end_date ?? "",
       has_certificate: c.has_certificate,
       regular_price: String(c.regular_price),
       student_price: String(c.student_price),
@@ -109,6 +118,8 @@ function CoursesPage() {
       mission: form.mission.trim() || null,
       details: form.details.trim() || null,
       class_quantity: Number(form.class_quantity) || 1,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
       has_certificate: form.has_certificate,
       regular_price: Number(form.regular_price) || 0,
       student_price: Number(form.student_price) || 0,
@@ -120,7 +131,11 @@ function CoursesPage() {
     const { data: userData } = await supabase.auth.getUser();
     const error = editingId
       ? (await supabase.from("courses").update(payload).eq("id", editingId)).error
-      : (await supabase.from("courses").insert({ ...payload, created_by: userData.user?.id ?? null })).error;
+      : (
+          await supabase
+            .from("courses")
+            .insert({ ...payload, season_id: await fetchActiveSeasonId(), created_by: userData.user?.id ?? null })
+        ).error;
     setSaving(false);
     if (error) {
       toast.error(error.message);
@@ -189,6 +204,12 @@ function CoursesPage() {
             </Field>
             <Field label="Details" className="sm:col-span-2">
               <Textarea rows={3} value={form.details} onChange={(e) => set("details", e.target.value)} />
+            </Field>
+            <Field label="Schedule start date">
+              <Input type="date" value={form.start_date} onChange={(e) => set("start_date", e.target.value)} />
+            </Field>
+            <Field label="Schedule end date">
+              <Input type="date" value={form.end_date} onChange={(e) => set("end_date", e.target.value)} />
             </Field>
             <Field label="Class quantity">
               <Input type="number" min={1} value={form.class_quantity} onChange={(e) => set("class_quantity", e.target.value)} />
