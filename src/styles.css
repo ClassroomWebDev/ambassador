@@ -126,6 +126,10 @@
 }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
   body {
     background: #fff;
   }
@@ -133,13 +137,17 @@
     visibility: hidden;
   }
   #receipt-print-area,
-  #receipt-print-area * {
+  #receipt-print-area *,
+  #cv-print-area,
+  #cv-print-area * {
     visibility: visible;
   }
-  #receipt-print-area {
+  #receipt-print-area,
+  #cv-print-area {
     position: absolute;
     inset: 0 auto auto 0;
     width: 100%;
     padding: 0;
   }
+
 }
