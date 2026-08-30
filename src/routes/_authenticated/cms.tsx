@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMyRole } from "@/hooks/useProfile";
 import { isStaffRole } from "@/hooks/useBusiness";
 import { CMS_KINDS, byKind, useCmsSections, type CmsKind, type CmsSection } from "@/hooks/useCms";
+import { CompanyWingsAdmin, LogoBoardsAdmin } from "@/components/EcosystemAdmin";
+import { ReviewsModeration } from "@/components/ReviewsModeration";
 
 export const Route = createFileRoute("/_authenticated/cms")({
   component: CmsPage,
@@ -52,10 +54,34 @@ function CmsPage() {
           Everything published here appears on the public landing page.
         </p>
       </header>
-      {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : allowed ? <CmsBoard /> : null}
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      ) : allowed ? (
+        <Tabs defaultValue="sections">
+          <TabsList className="flex-wrap">
+            <TabsTrigger value="sections">Content Sections</TabsTrigger>
+            <TabsTrigger value="logos">Logo Boards</TabsTrigger>
+            <TabsTrigger value="wings">Sister Concerns</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews Moderation</TabsTrigger>
+          </TabsList>
+          <TabsContent value="sections" className="mt-6">
+            <CmsBoard />
+          </TabsContent>
+          <TabsContent value="logos" className="mt-6">
+            <LogoBoardsAdmin canManage={role === "admin"} />
+          </TabsContent>
+          <TabsContent value="wings" className="mt-6">
+            <CompanyWingsAdmin canManage={role === "admin"} />
+          </TabsContent>
+          <TabsContent value="reviews" className="mt-6">
+            <ReviewsModeration />
+          </TabsContent>
+        </Tabs>
+      ) : null}
     </AppShell>
   );
 }
+
 
 function CmsBoard() {
   const { data: rows, isLoading } = useCmsSections();
