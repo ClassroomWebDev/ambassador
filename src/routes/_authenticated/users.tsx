@@ -76,6 +76,8 @@ type MemberRow = {
 
 function UsersPage() {
   const list = useServerFn(listMembers);
+  const { data: myRole } = useMyRole();
+  const canCreate = myRole === "admin" || myRole === "support_manager";
   const members = useQuery({
     queryKey: ["members"],
     queryFn: () => list(),
@@ -91,11 +93,12 @@ function UsersPage() {
         </p>
       </header>
 
-      <CreateMemberForm members={(members.data ?? []) as MemberRow[]} />
+      {canCreate ? <CreateMemberForm members={(members.data ?? []) as MemberRow[]} /> : null}
       <MemberDirectory members={(members.data ?? []) as MemberRow[]} loading={members.isLoading} />
     </div>
   );
 }
+
 
 function CreateMemberForm({ members }: { members: MemberRow[] }) {
   const queryClient = useQueryClient();
