@@ -167,3 +167,38 @@ export function useProspects() {
     },
   });
 }
+
+export type CoordinatorLeaderRow = {
+  rank: number;
+  user_id: string;
+  auto_id: string | null;
+  full_name: string;
+  institution: string | null;
+  sales_count: number;
+  sales_amount: number;
+};
+
+/** Top ambassadors ranked by total points (all roles may view). */
+export function useAmbassadorLeaderboard(limit = 10) {
+  return useQuery({
+    queryKey: ["leaderboard-ambassadors", limit],
+    queryFn: async (): Promise<LeaderRow[]> => {
+      const { data, error } = await (supabase.rpc as any)("leaderboard_ambassadors", { _limit: limit });
+      if (error) throw error;
+      return (data ?? []) as LeaderRow[];
+    },
+  });
+}
+
+/** Top coordinators ranked by approved sales revenue (staff + faculty only). */
+export function useCoordinatorLeaderboard(limit = 10, enabled = true) {
+  return useQuery({
+    queryKey: ["leaderboard-coordinators", limit],
+    enabled,
+    queryFn: async (): Promise<CoordinatorLeaderRow[]> => {
+      const { data, error } = await (supabase.rpc as any)("leaderboard_coordinators", { _limit: limit });
+      if (error) throw error;
+      return ((data ?? []) as CoordinatorLeaderRow[]).map((r) => ({ ...r, sales_amount: Number(r.sales_amount) }));
+    },
+  });
+}
