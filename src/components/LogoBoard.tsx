@@ -41,8 +41,21 @@ export function LogoBoard({
             {subtitle}
           </p>
         ) : null}
+        {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
       </header>
 
+      {logos.length === 0 ? (
+        <div
+          className={
+            dark
+              ? "rounded-2xl border border-dashed border-white/20 p-10 text-center text-sm text-surface-dark-foreground/70"
+              : "rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground"
+          }
+        >
+          <p>No logos on this board yet.</p>
+          {emptyAction ? <div className="mt-4 flex justify-center">{emptyAction}</div> : null}
+        </div>
+      ) : (
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {logos.map((logo) => {
           const inner = (
