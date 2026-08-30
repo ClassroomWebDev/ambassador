@@ -19,6 +19,7 @@ import { profileCompletion, FIELD_LABELS } from "@/lib/profile-meta";
 import { ROLE_LABELS } from "@/lib/types";
 import { Leaderboard } from "@/components/Leaderboard";
 import { BirthdayBanner } from "@/components/BirthdayBanner";
+import { NoticeWidget } from "@/components/NoticeWidget";
 import { SupportHub } from "@/components/SupportHub";
 
 import { Progress } from "@/components/ui/progress";
@@ -117,6 +118,7 @@ function Dashboard() {
         </h1>
       </header>
 
+      <NoticeWidget />
 
       <section className="space-y-4">
         <h2 className="font-display text-xl font-semibold">Opportunity performance</h2>
