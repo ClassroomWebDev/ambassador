@@ -3,15 +3,41 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, ShieldCheck, UserPlus } from "lucide-react";
-import { createMember, listMembers, setMemberStatus } from "@/lib/members.functions";
+import { Eye, KeyRound, Loader2, Pencil, Printer, Search, ShieldCheck, Trash2, UserPlus } from "lucide-react";
+import {
+  createMember,
+  deleteMember,
+  listMembers,
+  resetUserPassword,
+  setMemberStatus,
+  updateMember,
+} from "@/lib/members.functions";
 import { useMyRole } from "@/hooks/useProfile";
-import { isStaffRole } from "@/hooks/useBusiness";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ROLE_LABELS } from "@/lib/types";
+import { useProgramSettings } from "@/hooks/useBusiness";
 
 export const Route = createFileRoute("/_authenticated/users")({
   head: () => ({
@@ -32,26 +58,31 @@ export const Route = createFileRoute("/_authenticated/users")({
 
 type NewRole = "mentor" | "coordinator" | "ambassador";
 
+type MemberRow = {
+  id: string;
+  auto_id: string | null;
+  full_name: string;
+  mobile: string | null;
+  email?: string | null;
+  status: string;
+  institution: string | null;
+  designation?: string | null;
+  role: string;
+  created_at?: string | null;
+  mentor_id?: string | null;
+  coordinator_id?: string | null;
+  support_manager_id?: string | null;
+};
+
 function UsersPage() {
-  const { data: role } = useMyRole();
-  const staff = true;
   const list = useServerFn(listMembers);
   const members = useQuery({
     queryKey: ["members"],
-    enabled: staff,
     queryFn: () => list(),
   });
 
-  if (!staff) {
-    return (
-      <div className="mx-auto max-w-3xl rounded-3xl border border-dashed border-border p-8 text-sm text-muted-foreground">
-        User management is available to admins and managers only.
-      </div>
-    );
-  }
-
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-8">
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Administration</p>
         <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">User management</h1>
@@ -60,21 +91,11 @@ function UsersPage() {
         </p>
       </header>
 
-      <CreateMemberForm members={members.data ?? []} />
-      <MemberTable members={members.data ?? []} loading={members.isLoading} />
+      <CreateMemberForm members={(members.data ?? []) as MemberRow[]} />
+      <MemberDirectory members={(members.data ?? []) as MemberRow[]} loading={members.isLoading} />
     </div>
   );
 }
-
-type MemberRow = {
-  id: string;
-  auto_id: string | null;
-  full_name: string;
-  mobile: string | null;
-  status: string;
-  institution: string | null;
-  role: string;
-};
 
 function CreateMemberForm({ members }: { members: MemberRow[] }) {
   const queryClient = useQueryClient();
@@ -186,10 +207,87 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
   );
 }
 
-function MemberTable({ members, loading }: { members: MemberRow[]; loading: boolean }) {
+const TABS: { key: string; label: string; role?: string }[] = [
+  { key: "all", label: "All" },
+  { key: "admin", label: "Admin", role: "admin" },
+  { key: "support_manager", label: "Manager", role: "support_manager" },
+  { key: "mentor", label: "Mentor", role: "mentor" },
+  { key: "coordinator", label: "Executive", role: "coordinator" },
+  { key: "ambassador", label: "Ambassador", role: "ambassador" },
+];
+
+function MemberDirectory({ members, loading }: { members: MemberRow[]; loading: boolean }) {
+  const [search, setSearch] = useState("");
+  const { data: myRole } = useMyRole();
+  const isAdmin = myRole === "admin";
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return members;
+    return members.filter((m) =>
+      [m.full_name, m.email, m.mobile, m.institution].some((v) => (v ?? "").toLowerCase().includes(q)),
+    );
+  }, [members, search]);
+
+  return (
+    <section className="space-y-4">
+      <Tabs defaultValue="all">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <TabsList className="flex-wrap">
+            {TABS.map((t) => {
+              const count = (t.role ? filtered.filter((m) => m.role === t.role) : filtered).length;
+              return (
+                <TabsTrigger key={t.key} value={t.key} className="gap-1.5">
+                  {t.label}
+                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+                    {count}
+                  </Badge>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+          <div className="relative sm:w-72">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name, email, phone, institution"
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        {TABS.map((t) => (
+          <TabsContent key={t.key} value={t.key} className="mt-4">
+            <MemberTable
+              members={t.role ? filtered.filter((m) => m.role === t.role) : filtered}
+              loading={loading}
+              isAdmin={isAdmin}
+            />
+          </TabsContent>
+        ))}
+      </Tabs>
+    </section>
+  );
+}
+
+function MemberTable({
+  members,
+  loading,
+  isAdmin,
+}: {
+  members: MemberRow[];
+  loading: boolean;
+  isAdmin: boolean;
+}) {
   const queryClient = useQueryClient();
   const toggle = useServerFn(setMemberStatus);
   const [busy, setBusy] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<MemberRow | null>(null);
+  const [editing, setEditing] = useState<MemberRow | null>(null);
+  const [resetting, setResetting] = useState<MemberRow | null>(null);
+  const [deleting, setDeleting] = useState<MemberRow | null>(null);
+  const { data: settings } = useProgramSettings();
 
   async function flip(m: MemberRow) {
     setBusy(m.id);
@@ -205,17 +303,16 @@ function MemberTable({ members, loading }: { members: MemberRow[]; loading: bool
   }
 
   return (
-    <section className="space-y-4">
-      <h2 className="font-display text-xl font-semibold">All members</h2>
+    <>
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading members…</p>
       ) : members.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-          No members yet.
+          No members found.
         </p>
       ) : (
         <div className="overflow-x-auto rounded-3xl border border-border bg-card shadow-sm">
-          <table className="w-full min-w-[720px] text-sm">
+          <table className="w-full min-w-[860px] text-sm">
             <thead className="bg-muted text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">ID</th>
@@ -223,7 +320,7 @@ function MemberTable({ members, loading }: { members: MemberRow[]; loading: bool
                 <th className="px-4 py-3">Role</th>
                 <th className="px-4 py-3">Institution</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3" />
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -232,7 +329,7 @@ function MemberTable({ members, loading }: { members: MemberRow[]; loading: bool
                   <td className="px-4 py-3 text-muted-foreground">{m.auto_id ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span className="font-medium">{m.full_name || "Member"}</span>
-                    <span className="block text-xs text-muted-foreground">{m.mobile || "—"}</span>
+                    <span className="block text-xs text-muted-foreground">{m.email || m.mobile || "—"}</span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {ROLE_LABELS[m.role as keyof typeof ROLE_LABELS] ?? m.role}
@@ -241,20 +338,39 @@ function MemberTable({ members, loading }: { members: MemberRow[]; loading: bool
                   <td className="px-4 py-3">
                     <Badge variant={m.status === "held" ? "destructive" : "default"}>{m.status}</Badge>
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <Button
-                      size="sm"
-                      variant={m.status === "held" ? "default" : "secondary"}
-                      disabled={busy === m.id}
-                      onClick={() => void flip(m)}
-                    >
-                      {busy === m.id ? (
-                        <Loader2 className="size-3.5 animate-spin" />
-                      ) : (
-                        <ShieldCheck className="size-3.5" />
-                      )}
-                      {m.status === "held" ? "Set active" : "Hold account"}
-                    </Button>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                      <IconButton title="View profile" onClick={() => setViewing(m)}>
+                        <Eye className="size-4" />
+                      </IconButton>
+                      <IconButton title="Print ID card" onClick={() => printIdCard(m, settings?.org_name)}>
+                        <Printer className="size-4" />
+                      </IconButton>
+                      <IconButton title="Reset password" onClick={() => setResetting(m)}>
+                        <KeyRound className="size-4" />
+                      </IconButton>
+                      <IconButton title="Edit member" onClick={() => setEditing(m)}>
+                        <Pencil className="size-4" />
+                      </IconButton>
+                      {isAdmin ? (
+                        <IconButton title="Delete member" destructive onClick={() => setDeleting(m)}>
+                          <Trash2 className="size-4" />
+                        </IconButton>
+                      ) : null}
+                      <Button
+                        size="sm"
+                        variant={m.status === "held" ? "default" : "secondary"}
+                        disabled={busy === m.id}
+                        onClick={() => void flip(m)}
+                      >
+                        {busy === m.id ? (
+                          <Loader2 className="size-3.5 animate-spin" />
+                        ) : (
+                          <ShieldCheck className="size-3.5" />
+                        )}
+                        {m.status === "held" ? "Activate" : "Hold account"}
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -262,8 +378,282 @@ function MemberTable({ members, loading }: { members: MemberRow[]; loading: bool
           </table>
         </div>
       )}
-    </section>
+
+      <ViewDialog member={viewing} onClose={() => setViewing(null)} />
+      <ResetPasswordDialog member={resetting} onClose={() => setResetting(null)} />
+      <EditDialog member={editing} onClose={() => setEditing(null)} />
+      <DeleteDialog member={deleting} onClose={() => setDeleting(null)} />
+    </>
   );
+}
+
+function IconButton({
+  title,
+  onClick,
+  destructive,
+  children,
+}: {
+  title: string;
+  onClick: () => void;
+  destructive?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      type="button"
+      size="icon"
+      variant="ghost"
+      title={title}
+      aria-label={title}
+      onClick={onClick}
+      className={destructive ? "text-destructive hover:text-destructive" : ""}
+    >
+      {children}
+    </Button>
+  );
+}
+
+function ViewDialog({ member, onClose }: { member: MemberRow | null; onClose: () => void }) {
+  return (
+    <Dialog open={!!member} onOpenChange={(o) => (!o ? onClose() : undefined)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{member?.full_name || "Member"}</DialogTitle>
+          <DialogDescription>Complete member information</DialogDescription>
+        </DialogHeader>
+        {member ? (
+          <dl className="grid gap-3 text-sm sm:grid-cols-2">
+            <Info label="Member ID" value={member.auto_id ?? "—"} />
+            <Info label="Role" value={ROLE_LABELS[member.role as keyof typeof ROLE_LABELS] ?? member.role} />
+            <Info label="Email" value={member.email ?? "—"} />
+            <Info label="Phone" value={member.mobile ?? "—"} />
+            <Info label="Institution" value={member.institution ?? "—"} />
+            <Info label="Designation" value={member.designation ?? "—"} />
+            <Info
+              label="Joined"
+              value={member.created_at ? new Date(member.created_at).toLocaleDateString() : "—"}
+            />
+            <Info label="Status" value={member.status} />
+          </dl>
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-muted/40 px-3 py-2">
+      <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 font-medium">{value}</dd>
+    </div>
+  );
+}
+
+function ResetPasswordDialog({ member, onClose }: { member: MemberRow | null; onClose: () => void }) {
+  const reset = useServerFn(resetUserPassword);
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    if (!member) return;
+    setBusy(true);
+    try {
+      await reset({ data: { user_id: member.id, password } });
+      toast.success("Password updated");
+      setPassword("");
+      onClose();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={!!member} onOpenChange={(o) => (!o ? onClose() : undefined)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Reset password</DialogTitle>
+          <DialogDescription>Set a new password for {member?.full_name || "this member"}.</DialogDescription>
+        </DialogHeader>
+        <Field label="New password *">
+          <Input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min. 6 characters" />
+        </Field>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button disabled={busy || password.length < 6} onClick={() => void save()}>
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />} Save password
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditDialog({ member, onClose }: { member: MemberRow | null; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const update = useServerFn(updateMember);
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({ full_name: "", mobile: "", institution: "", designation: "" });
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+
+  if (member && loadedFor !== member.id) {
+    setLoadedFor(member.id);
+    setForm({
+      full_name: member.full_name ?? "",
+      mobile: member.mobile ?? "",
+      institution: member.institution ?? "",
+      designation: member.designation ?? "",
+    });
+  }
+
+  async function save() {
+    if (!member) return;
+    setBusy(true);
+    try {
+      await update({
+        data: {
+          user_id: member.id,
+          full_name: form.full_name.trim(),
+          mobile: form.mobile.trim(),
+          institution: form.institution.trim() || null,
+          designation: form.designation.trim() || null,
+          mentor_id: member.mentor_id ?? null,
+          support_manager_id: member.support_manager_id ?? null,
+          coordinator_id: member.coordinator_id ?? null,
+        },
+      });
+      toast.success("Member updated");
+      await queryClient.invalidateQueries({ queryKey: ["members"] });
+      onClose();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={!!member} onOpenChange={(o) => (!o ? onClose() : undefined)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit member</DialogTitle>
+          <DialogDescription>Update the member's information.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Name *">
+            <Input value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} />
+          </Field>
+          <Field label="Mobile *">
+            <Input value={form.mobile} onChange={(e) => setForm((f) => ({ ...f, mobile: e.target.value }))} />
+          </Field>
+          <Field label="Institution">
+            <Input value={form.institution} onChange={(e) => setForm((f) => ({ ...f, institution: e.target.value }))} />
+          </Field>
+          <Field label="Designation">
+            <Input value={form.designation} onChange={(e) => setForm((f) => ({ ...f, designation: e.target.value }))} />
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button disabled={busy} onClick={() => void save()}>
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Pencil className="size-4" />} Save changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteDialog({ member, onClose }: { member: MemberRow | null; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const remove = useServerFn(deleteMember);
+  const [busy, setBusy] = useState(false);
+
+  async function confirm() {
+    if (!member) return;
+    setBusy(true);
+    try {
+      await remove({ data: { user_id: member.id } });
+      toast.success("Member deleted");
+      await queryClient.invalidateQueries({ queryKey: ["members"] });
+      onClose();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <AlertDialog open={!!member} onOpenChange={(o) => (!o ? onClose() : undefined)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete {member?.full_name || "member"}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This permanently removes the account and profile. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction disabled={busy} onClick={(e) => { e.preventDefault(); void confirm(); }}>
+            {busy ? "Deleting…" : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function printIdCard(member: MemberRow, orgName?: string | null) {
+  const org = orgName || "Classroom Ambassador Program";
+  const role = ROLE_LABELS[member.role as keyof typeof ROLE_LABELS] ?? member.role;
+  const rows = [
+    ["Member ID", member.auto_id ?? "—"],
+    ["Name", member.full_name || "Member"],
+    ["Role", role],
+    ["Email", member.email ?? "—"],
+    ["Phone", member.mobile ?? "—"],
+    ["Institution", member.institution ?? "—"],
+    ["Joined", member.created_at ? new Date(member.created_at).toLocaleDateString() : "—"],
+    ["Status", member.status],
+  ];
+  const html = `<!doctype html><html><head><meta charset="utf-8" />
+<title>${org} — ${member.full_name || "Member"} ID card</title>
+<style>
+  body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#FAFAFA;color:#0F172A;margin:0;padding:24px}
+  .card{max-width:420px;margin:0 auto;border:1px solid #e4e4e7;border-radius:16px;overflow:hidden;background:#fff}
+  .head{background:#0F172A;color:#FAFAFA;padding:16px 20px}
+  .head h1{font-size:14px;letter-spacing:.16em;text-transform:uppercase;margin:0}
+  .head p{margin:4px 0 0;font-size:18px;font-weight:700;color:#fff}
+  .body{padding:16px 20px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{padding:7px 0;border-bottom:1px dashed #e4e4e7;vertical-align:top}
+  td.k{color:#64748b;text-transform:uppercase;font-size:10px;letter-spacing:.08em;width:38%}
+  .foot{padding:14px 20px;border-top:3px solid #991B1B;font-size:11px;color:#64748b}
+  @media print{body{padding:0;background:#fff}.card{border:none}}
+</style></head><body>
+<div class="card">
+  <div class="head"><h1>${org}</h1><p>Member ID Card</p></div>
+  <div class="body"><table>${rows
+    .map(([k, v]) => `<tr><td class="k">${k}</td><td>${String(v)}</td></tr>`)
+    .join("")}</table></div>
+  <div class="foot">Issued by ${org}. This card remains the property of the program.</div>
+</div>
+<script>window.onload=function(){window.print()}</script>
+</body></html>`;
+  const w = window.open("", "_blank", "width=520,height=720");
+  if (!w) {
+    toast.error("Allow pop-ups to print the ID card");
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
