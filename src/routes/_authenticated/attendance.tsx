@@ -184,7 +184,7 @@ function MyAttendanceLog() {
           No attendance recorded yet.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+        <div className="overflow-x-auto rounded-3xl border border-border bg-card shadow-sm">
           <table className="w-full text-sm">
             <thead className="bg-muted text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
