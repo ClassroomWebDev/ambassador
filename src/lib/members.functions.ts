@@ -1,6 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertStaff, createSchema, statusSchema } from "./members.server";
+import {
+  assertStaff,
+  createSchema,
+  statusSchema,
+  resetPasswordSchema,
+  deleteMemberSchema,
+} from "./members.server";
 
 export const listMembers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -74,5 +80,48 @@ export const setMemberStatus = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("profiles").update({ status: data.status }).eq("id", data.user_id);
     if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+async function hasRole(
+  supabase: { rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" | "support_manager" }) => Promise<{ data: boolean | null }> },
+  userId: string,
+  role: "admin" | "support_manager",
+) {
+  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: role });
+  return data === true;
+}
+
+export const resetUserPassword = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => resetPasswordSchema.parse(data))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }) => {
+    const [isAdmin, isManager] = await Promise.all([
+      hasRole(context.supabase as never, context.userId, "admin"),
+      hasRole(context.supabase as never, context.userId, "support_manager"),
+    ]);
+    if (!isAdmin && !isManager) throw new Error("Only admins and managers can reset passwords");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
+      password: data.password,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteMember = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => deleteMemberSchema.parse(data))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }) => {
+    const isAdmin = await hasRole(context.supabase as never, context.userId, "admin");
+    if (!isAdmin) throw new Error("Only admins can delete members");
+    if (data.user_id === context.userId) throw new Error("You cannot delete your own account");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: authErr } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
+    if (authErr) throw new Error(authErr.message);
+    const { error: profileErr } = await supabaseAdmin.from("profiles").delete().eq("id", data.user_id);
+    if (profileErr) throw new Error(profileErr.message);
     return { ok: true };
   });

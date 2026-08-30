@@ -18,6 +18,16 @@ export const statusSchema = z.object({
   status: z.enum(["active", "held"]),
 });
 
+
+export const resetPasswordSchema = z.object({
+  user_id: z.string().uuid(),
+  password: z.string().min(6),
+});
+
+export const deleteMemberSchema = z.object({
+  user_id: z.string().uuid(),
+});
+
 export async function assertStaff(supabase: any, userId?: string) {
   return true;
 }
