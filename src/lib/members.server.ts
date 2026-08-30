@@ -18,10 +18,6 @@ export const statusSchema = z.object({
   status: z.enum(["active", "held"]),
 });
 
-export const statusSchema = z.object({
-  user_id: z.string().uuid(),
-  status: z.enum(["active", "held"]),
-});
 
 export const resetPasswordSchema = z.object({
   user_id: z.string().uuid(),
