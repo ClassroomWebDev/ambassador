@@ -1,25 +1,38 @@
 import { Trophy } from "lucide-react";
-import { useLeaderboard, useMyRank } from "@/hooks/useBusiness";
-import { useProfile } from "@/hooks/useProfile";
+import { useAmbassadorLeaderboard, useMyRank } from "@/hooks/useBusiness";
+import { useProfile, useMyRole } from "@/hooks/useProfile";
+
+export function rankBadge(rank: number) {
+  if (rank === 1) return "🥇";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return `#${rank}`;
+}
 
 export function Leaderboard({ limit = 10 }: { limit?: number }) {
-  const { data: rows, isLoading } = useLeaderboard(limit);
+  const { data: rows, isLoading } = useAmbassadorLeaderboard(limit);
   const { data: mine } = useMyRank();
   const { data: profile } = useProfile();
+  const { data: role } = useMyRole();
+  const isAmbassador = role === "ambassador";
   const inTop = (rows ?? []).some((r) => r.user_id === profile?.id);
 
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-2">
         <Trophy className="size-5 text-primary" />
-        <h2 className="font-display text-xl font-semibold">Top {limit} leaderboard</h2>
+        <h2 className="font-display text-xl font-semibold">Top {limit} campus ambassadors</h2>
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading rankings…</p>
+        <div className="grid gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />
+          ))}
+        </div>
       ) : (rows ?? []).length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-          No ranked members yet.
+          No ranked ambassadors yet.
         </p>
       ) : (
         <>
@@ -28,17 +41,26 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
             {(rows ?? []).map((r) => (
               <article
                 key={r.user_id}
-                className={`rounded-2xl bg-card p-4 shadow-sm ${
-                  r.user_id === profile?.id ? "border-2 border-primary" : "border border-border"
+                className={`rounded-2xl p-4 shadow-sm ${
+                  r.user_id === profile?.id
+                    ? "border-2 border-primary bg-primary/5"
+                    : "border border-border bg-card"
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <span className="grid size-8 place-items-center rounded-xl bg-muted font-display text-sm font-bold">
-                      {r.rank}
+                      {rankBadge(r.rank)}
                     </span>
                     <div>
-                      <p className="text-sm font-semibold">{r.full_name || "Member"}</p>
+                      <p className="text-sm font-semibold">
+                        {r.full_name || "Member"}
+                        {r.user_id === profile?.id ? (
+                          <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
+                            You
+                          </span>
+                        ) : null}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {r.auto_id ?? "—"} · {r.institution || "—"}
                       </p>
@@ -72,9 +94,16 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
                         : "border-t border-border"
                     }
                   >
-                    <td className="px-4 py-3 font-display font-bold">#{r.rank}</td>
+                    <td className="px-4 py-3 font-display font-bold">{rankBadge(r.rank)}</td>
                     <td className="px-4 py-3 text-muted-foreground">{r.auto_id ?? "—"}</td>
-                    <td className="px-4 py-3 font-medium">{r.full_name || "Member"}</td>
+                    <td className="px-4 py-3 font-medium">
+                      {r.full_name || "Member"}
+                      {r.user_id === profile?.id ? (
+                        <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
+                          You
+                        </span>
+                      ) : null}
+                    </td>
                     <td className="px-4 py-3 text-muted-foreground">{r.institution || "—"}</td>
                     <td className="px-4 py-3 text-right font-display font-bold text-primary">{r.total_points}</td>
                   </tr>
@@ -85,7 +114,7 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
         </>
       )}
 
-      {!inTop && mine ? (
+      {isAmbassador && !inTop && mine ? (
         <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Your standing</p>
           <p className="mt-1 text-sm">
