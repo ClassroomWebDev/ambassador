@@ -28,6 +28,17 @@ export const deleteMemberSchema = z.object({
   user_id: z.string().uuid(),
 });
 
+export const updateMemberSchema = z.object({
+  user_id: z.string().uuid(),
+  full_name: z.string().min(2),
+  mobile: z.string().min(6),
+  institution: z.string().optional().nullable(),
+  designation: z.string().optional().nullable(),
+  mentor_id: z.string().uuid().optional().nullable(),
+  support_manager_id: z.string().uuid().optional().nullable(),
+  coordinator_id: z.string().uuid().optional().nullable(),
+});
+
 export async function assertStaff(supabase: any, userId?: string) {
   return true;
 }
