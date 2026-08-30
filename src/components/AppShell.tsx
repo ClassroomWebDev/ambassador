@@ -88,6 +88,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       events,
       calendar,
       certificates,
+      reviews,
       support,
       profile,
     ];
@@ -102,6 +103,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
     events,
     calendar,
     certificates,
+    reviews,
     support,
     profile,
   ];
