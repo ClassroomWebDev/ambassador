@@ -91,8 +91,8 @@ export const createMember = createServerFn({ method: "POST" })
         mobile: data.mobile,
         institution: data.institution ?? null,
         designation: data.designation ?? null,
-        mentor_id: data.mentor_id ?? null,
-        support_manager_id: data.support_manager_id ?? null,
+        mentor_id: data.role === "ambassador" || data.role === "coordinator" ? (data.mentor_id ?? null) : null,
+        support_manager_id: data.role === "support_manager" ? null : (data.support_manager_id ?? null),
         coordinator_id: data.role === "ambassador" ? (data.coordinator_id ?? null) : null,
         ...(autoId ? { auto_id: autoId as string } : {}),
       })

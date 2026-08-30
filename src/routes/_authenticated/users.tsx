@@ -113,9 +113,14 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
     coordinator_id: "",
   });
 
-  const mentors = useMemo(() => members.filter((m) => m.role === "mentor"), [members]);
-  const managers = useMemo(() => members.filter((m) => m.role === "support_manager"), [members]);
-  const coordinators = useMemo(() => members.filter((m) => m.role === "coordinator"), [members]);
+  const active = useMemo(() => members.filter((m) => m.status === "active"), [members]);
+  const mentors = useMemo(() => active.filter((m) => m.role === "mentor"), [active]);
+  const managers = useMemo(() => active.filter((m) => m.role === "support_manager"), [active]);
+  const coordinators = useMemo(() => active.filter((m) => m.role === "coordinator"), [active]);
+
+  const showManager = form.role !== "support_manager";
+  const showFaculty = form.role === "ambassador" || form.role === "coordinator";
+  const showCoordinator = form.role === "ambassador";
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -128,11 +133,12 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
           role: form.role,
           institution: form.institution.trim() || null,
           designation: form.designation.trim() || null,
-          mentor_id: form.mentor_id || null,
-          support_manager_id: form.support_manager_id || null,
-          coordinator_id: form.coordinator_id || null,
+          mentor_id: showFaculty ? form.mentor_id || null : null,
+          support_manager_id: showManager ? form.support_manager_id || null : null,
+          coordinator_id: showCoordinator ? form.coordinator_id || null : null,
         },
       }),
+
     onSuccess: (res) => {
       toast.success(`Member created${res?.auto_id ? ` — ${res.auto_id}` : ""}`);
       setForm((f) => ({ ...f, full_name: "", mobile: "", email: "", password: "", institution: "" }));
@@ -178,19 +184,23 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
         <Field label="Designation">
           <Input value={form.designation} onChange={set("designation")} />
         </Field>
-        <Field label="Faculty (CBF)">
-          <Picker value={form.mentor_id} onChange={set("mentor_id")} options={mentors} placeholder="Select faculty" />
-        </Field>
-        <Field label="Manager (CBM)">
-          <Picker
-            value={form.support_manager_id}
-            onChange={set("support_manager_id")}
-            options={managers}
-            placeholder="Select manager"
-          />
-        </Field>
-        {form.role === "ambassador" ? (
-          <Field label="Coordinator">
+        {showManager ? (
+          <Field label="Select Manager (CBM)">
+            <Picker
+              value={form.support_manager_id}
+              onChange={set("support_manager_id")}
+              options={managers}
+              placeholder="Select manager"
+            />
+          </Field>
+        ) : null}
+        {showFaculty ? (
+          <Field label="Select Faculty (CBF)">
+            <Picker value={form.mentor_id} onChange={set("mentor_id")} options={mentors} placeholder="Select faculty" />
+          </Field>
+        ) : null}
+        {showCoordinator ? (
+          <Field label="Select Coordinator (CBC)">
             <Picker
               value={form.coordinator_id}
               onChange={set("coordinator_id")}
@@ -199,6 +209,7 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
             />
           </Field>
         ) : null}
+
       </div>
       <Button className="mt-6" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
         {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <UserPlus className="size-4" />} Create
