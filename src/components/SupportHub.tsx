@@ -26,8 +26,8 @@ export function SupportHub() {
   const cards = visibleCards(role);
   const map = {
     coordinator: { title: "Coordinator", id: profile.coordinator_id },
-    mentor: { title: "Mentor", id: profile.mentor_id },
-    support_manager: { title: "Support Manager", id: profile.support_manager_id },
+    mentor: { title: "Faculty (CBF)", id: profile.mentor_id },
+    support_manager: { title: "Manager (CBM)", id: profile.support_manager_id },
   };
 
   return (

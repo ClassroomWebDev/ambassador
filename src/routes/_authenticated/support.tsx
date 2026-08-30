@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_authenticated/support")({
       { title: "Support Hub — Ambassador Hub" },
       {
         name: "description",
-        content: "Find your assigned coordinator, mentor and support manager with direct phone contact.",
+        content: "Find your assigned coordinator, faculty and manager with direct phone contact.",
       },
       { property: "og:title", content: "Support Hub — Ambassador Hub" },
       { property: "og:description", content: "Your assigned support hierarchy, always one tap away." },

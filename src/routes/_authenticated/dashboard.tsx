@@ -139,7 +139,7 @@ function Dashboard() {
       </section>
 
       {staff ? <StaffPanel pending={pending} /> : null}
-      {role === "mentor" ? <TeamPanel title="Mentor network analytics" /> : null}
+      {role === "mentor" ? <TeamPanel title="Faculty network analytics" /> : null}
       {role === "coordinator" ? <TeamPanel title="My team points breakdown" showSalesLink /> : null}
       {!role || role === "ambassador" ? <AmbassadorPanel /> : null}
 
