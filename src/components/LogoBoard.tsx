@@ -12,14 +12,18 @@ export function LogoBoard({
   subtitle,
   logos,
   tone = "light",
+  action,
+  emptyAction,
 }: {
   title: string;
   subtitle?: string;
   logos: LogoBoardRow[];
   tone?: "light" | "dark";
+  /** Admin action rendered in the board header. */
+  action?: ReactNode;
+  /** Admin action rendered inside the empty state. */
+  emptyAction?: ReactNode;
 }) {
-  if (logos.length === 0) return null;
-
   const dark = tone === "dark";
 
   return (
