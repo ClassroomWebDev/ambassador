@@ -3,6 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
   CalendarCheck,
+  CalendarDays,
+  Megaphone,
   LayoutDashboard,
   LifeBuoy,
   LogOut,
@@ -17,9 +19,20 @@ import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useProfile } from "@/hooks/useProfile";
 import { ROLE_LABELS, type AppRole } from "@/lib/types";
+import { NotificationBell } from "@/components/NotificationBell";
 
 type NavItem = {
-  to: "/dashboard" | "/courses" | "/attendance" | "/sales" | "/leaderboard" | "/users" | "/profile" | "/support";
+  to:
+    | "/dashboard"
+    | "/courses"
+    | "/attendance"
+    | "/sales"
+    | "/leaderboard"
+    | "/users"
+    | "/notices"
+    | "/events"
+    | "/profile"
+    | "/support";
   label: string;
   icon: typeof LayoutDashboard;
 };
@@ -29,6 +42,8 @@ function navForRole(role: AppRole | undefined): NavItem[] {
   const profile: NavItem = { to: "/profile", label: "Profile", icon: UserRoundCog };
   const support: NavItem = { to: "/support", label: "Support", icon: LifeBuoy };
   const leaderboard: NavItem = { to: "/leaderboard", label: "Leaderboard", icon: Trophy };
+  const notices: NavItem = { to: "/notices", label: "Notice Board", icon: Megaphone };
+  const events: NavItem = { to: "/events", label: "Events", icon: CalendarDays };
 
   if (role === "admin" || role === "support_manager") {
     return [
@@ -37,6 +52,8 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       { to: "/attendance", label: "Attendance", icon: CalendarCheck },
       { to: "/sales", label: "Opportunities", icon: ReceiptText },
       leaderboard,
+      notices,
+      events,
       { to: "/users", label: "Users", icon: Users },
       support,
       profile,
@@ -49,6 +66,8 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       { to: "/sales", label: "New Opportunity", icon: ReceiptText },
       { to: "/courses", label: "Courses", icon: BookOpen },
       leaderboard,
+      notices,
+      events,
       support,
       profile,
     ];
@@ -59,6 +78,8 @@ function navForRole(role: AppRole | undefined): NavItem[] {
     { to: "/attendance", label: "Attendance Log", icon: CalendarCheck },
     { to: "/sales", label: "New Opportunity", icon: ReceiptText },
     leaderboard,
+    notices,
+    events,
     support,
     profile,
   ];
@@ -84,7 +105,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background">
       {/* Desktop side navigation */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-sidebar px-5 py-7 text-sidebar-foreground md:flex">
-        <Brand />
+        <div className="flex items-center justify-between">
+          <Brand />
+          <NotificationBell />
+        </div>
         <nav className="mt-8 flex flex-1 flex-col gap-1">
           {NAV.map((item) => (
             <Link
@@ -107,6 +131,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Mobile top bar */}
       <header className="sticky top-0 z-40 flex items-center justify-between bg-sidebar px-4 py-3 text-sidebar-foreground md:hidden">
         <Brand />
+        <div className="flex items-center gap-1">
+          <NotificationBell />
         <button
           type="button"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -115,6 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
+        </div>
       </header>
 
       {menuOpen ? (

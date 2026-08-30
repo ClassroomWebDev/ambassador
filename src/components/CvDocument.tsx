@@ -1,5 +1,13 @@
 import type { EducationRow } from "@/lib/profile-meta";
 
+export type CvReference = {
+  name: string;
+  designation: string;
+  phone: string;
+  email: string;
+  relation: string;
+};
+
 export type CvData = {
   fullName: string;
   professionalTitle: string;
@@ -13,6 +21,7 @@ export type CvData = {
   presentAddress: string;
   permanentAddress: string;
   careerObjective: string;
+  experience: string;
   education: EducationRow[];
   technicalSkills: string;
   softSkills: string;
@@ -26,7 +35,10 @@ export type CvData = {
   photoUrl: string | null;
   signatureUrl: string | null;
   signatureText: string | null;
+  references: CvReference[];
 };
+
+const CV_FONT = "Calibri, 'Carlito', 'Segoe UI', Arial, sans-serif";
 
 function fmtDate(value: string) {
   if (!value) return "—";
@@ -61,15 +73,23 @@ export function CvDocument({ data }: { data: CvData }) {
     { label: "Language", value: data.languages },
   ].filter((s) => s.value.trim());
 
+  const experienceLines = data.experience
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+
   return (
     <div
       id="cv-print-area"
-      className="mx-auto w-full max-w-[820px] bg-white p-8 text-[10pt] leading-relaxed text-slate-900"
-      style={{ fontFamily: "'Plus Jakarta Sans', Arial, sans-serif" }}
+      className="mx-auto w-full max-w-[820px] bg-white p-8 text-[10pt] leading-relaxed text-slate-900 print:p-0"
+      style={{ fontFamily: CV_FONT }}
     >
       <header className="flex items-start justify-between gap-6 border-b-2 border-[#991B1B] pb-4">
         <div>
-          <h1 className="text-[20pt] font-bold uppercase tracking-wide text-slate-900">
+          <h1
+            className="text-[20pt] font-bold uppercase tracking-wide text-slate-900"
+            style={{ fontFamily: CV_FONT }}
+          >
             {data.fullName || "Your Name"}
           </h1>
           {data.professionalTitle ? (
@@ -96,14 +116,14 @@ export function CvDocument({ data }: { data: CvData }) {
       </header>
 
       {data.careerObjective ? (
-        <section className="mt-5">
+        <section className="mt-5 break-inside-avoid">
           <Heading>Career Objective</Heading>
           <p className="whitespace-pre-line text-justify">{data.careerObjective}</p>
         </section>
       ) : null}
 
       {data.education.length > 0 ? (
-        <section className="mt-5">
+        <section className="mt-5 break-inside-avoid">
           <Heading>Academic Qualifications</Heading>
           <table className="w-full border-collapse text-[9.5pt]">
             <thead>
@@ -129,7 +149,7 @@ export function CvDocument({ data }: { data: CvData }) {
       ) : null}
 
       {skills.length > 0 ? (
-        <section className="mt-5">
+        <section className="mt-5 break-inside-avoid">
           <Heading>Skills &amp; Competencies</Heading>
           <ul className="space-y-1">
             {skills.map((s) => (
@@ -142,7 +162,18 @@ export function CvDocument({ data }: { data: CvData }) {
         </section>
       ) : null}
 
-      <section className="mt-5">
+      {experienceLines.length > 0 ? (
+        <section className="mt-5 break-inside-avoid">
+          <Heading>Experience &amp; Activities</Heading>
+          <ul className="list-disc space-y-1 pl-5">
+            {experienceLines.map((line, i) => (
+              <li key={`${line}-${i}`}>{line}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <section className="mt-5 break-inside-avoid">
         <Heading>Personal Details</Heading>
         <div className="grid grid-cols-2 gap-4 text-[9.5pt]">
           <table className="w-full border-collapse">
@@ -170,8 +201,25 @@ export function CvDocument({ data }: { data: CvData }) {
         ) : null}
       </section>
 
-      <section className="mt-10 flex items-end justify-between">
-        <p className="text-[9pt] text-slate-600">
+      {data.references.length > 0 ? (
+        <section className="mt-5 break-inside-avoid">
+          <Heading>References</Heading>
+          <div className="grid grid-cols-2 gap-4 text-[9.5pt]">
+            {data.references.map((ref, i) => (
+              <div key={`${ref.name}-${i}`} className="border border-slate-300 px-3 py-2">
+                <p className="font-semibold">{ref.name}</p>
+                {ref.designation ? <p>{ref.designation}</p> : null}
+                {ref.phone ? <p>Phone: {ref.phone}</p> : null}
+                {ref.email ? <p>Email: {ref.email}</p> : null}
+                {ref.relation ? <p>Relation: {ref.relation}</p> : null}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="mt-8 flex items-end justify-between break-inside-avoid">
+        <p className="max-w-[55%] text-[9pt] text-slate-600">
           I hereby declare that the information stated above is true to the best of my knowledge.
         </p>
         <div className="text-center">
