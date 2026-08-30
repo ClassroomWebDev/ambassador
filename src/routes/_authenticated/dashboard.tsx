@@ -20,6 +20,9 @@ import { ROLE_LABELS } from "@/lib/types";
 import { Leaderboard } from "@/components/Leaderboard";
 import { BirthdayBanner } from "@/components/BirthdayBanner";
 import { NoticeWidget } from "@/components/NoticeWidget";
+import { AmbassadorHero } from "@/components/AmbassadorHero";
+import { SeasonCountdown } from "@/components/SeasonCountdown";
+
 import { SupportHub } from "@/components/SupportHub";
 
 import { Progress } from "@/components/ui/progress";
