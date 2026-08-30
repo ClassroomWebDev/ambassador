@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMyRole } from "@/hooks/useProfile";
 import { isStaffRole } from "@/hooks/useBusiness";
 import { CMS_KINDS, byKind, useCmsSections, type CmsKind, type CmsSection } from "@/hooks/useCms";
+import { CompanyWingsAdmin, LogoBoardsAdmin } from "@/components/EcosystemAdmin";
+import { ReviewsModeration } from "@/components/ReviewsModeration";
 
 export const Route = createFileRoute("/_authenticated/cms")({
   component: CmsPage,
