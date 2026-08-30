@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/calendar")({
 
 type Kind = "event" | "class" | "deadline";
 
-type CalendarItem = { date: string; title: string; kind: Kind; note?: string };
+type CalendarItem = { date: string; title: string; kind: Kind; note?: string | undefined };
 
 const KIND_STYLES: Record<Kind, string> = {
   event: "bg-primary/10 text-primary border-primary/25",

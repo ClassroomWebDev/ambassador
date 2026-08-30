@@ -1,15 +1,19 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  Award,
   BookOpen,
   CalendarCheck,
   CalendarDays,
-  Megaphone,
+  CalendarRange,
   LayoutDashboard,
+  LayoutTemplate,
   LifeBuoy,
   LogOut,
+  Megaphone,
   Menu,
   ReceiptText,
+  Timer,
   Trophy,
   Users,
   UserRoundCog,
@@ -31,6 +35,10 @@ type NavItem = {
     | "/users"
     | "/notices"
     | "/events"
+    | "/calendar"
+    | "/certificates"
+    | "/seasons"
+    | "/cms"
     | "/profile"
     | "/support";
   label: string;
@@ -44,6 +52,8 @@ function navForRole(role: AppRole | undefined): NavItem[] {
   const leaderboard: NavItem = { to: "/leaderboard", label: "Leaderboard", icon: Trophy };
   const notices: NavItem = { to: "/notices", label: "Notice Board", icon: Megaphone };
   const events: NavItem = { to: "/events", label: "Events", icon: CalendarDays };
+  const calendar: NavItem = { to: "/calendar", label: "Calendar", icon: CalendarRange };
+  const certificates: NavItem = { to: "/certificates", label: "Certificates", icon: Award };
 
   if (role === "admin" || role === "support_manager") {
     return [
@@ -54,6 +64,10 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       leaderboard,
       notices,
       events,
+      calendar,
+      certificates,
+      { to: "/seasons", label: "Seasons", icon: Timer },
+      { to: "/cms", label: "Website CMS", icon: LayoutTemplate },
       { to: "/users", label: "Users", icon: Users },
       support,
       profile,
@@ -68,6 +82,8 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       leaderboard,
       notices,
       events,
+      calendar,
+      certificates,
       support,
       profile,
     ];
@@ -80,10 +96,13 @@ function navForRole(role: AppRole | undefined): NavItem[] {
     leaderboard,
     notices,
     events,
+    calendar,
+    certificates,
     support,
     profile,
   ];
 }
+
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });

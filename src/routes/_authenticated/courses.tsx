@@ -6,6 +6,9 @@ import { Award, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole } from "@/hooks/useProfile";
 import { isStaffRole, useCourses, useSessions, type Course } from "@/hooks/useBusiness";
+import { courseProgress, LIFECYCLE_LABELS, type Lifecycle } from "@/lib/course-progress";
+import { fetchActiveSeasonId } from "@/hooks/useSeasons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +38,8 @@ type CourseForm = {
   mission: string;
   details: string;
   class_quantity: string;
+  start_date: string;
+  end_date: string;
   has_certificate: boolean;
   regular_price: string;
   student_price: string;
@@ -49,6 +54,8 @@ const EMPTY: CourseForm = {
   mission: "",
   details: "",
   class_quantity: "1",
+  start_date: "",
+  end_date: "",
   has_certificate: false,
   regular_price: "0",
   student_price: "0",
@@ -87,6 +94,8 @@ function CoursesPage() {
       mission: c.mission ?? "",
       details: c.details ?? "",
       class_quantity: String(c.class_quantity),
+      start_date: c.start_date ?? "",
+      end_date: c.end_date ?? "",
       has_certificate: c.has_certificate,
       regular_price: String(c.regular_price),
       student_price: String(c.student_price),
@@ -109,6 +118,8 @@ function CoursesPage() {
       mission: form.mission.trim() || null,
       details: form.details.trim() || null,
       class_quantity: Number(form.class_quantity) || 1,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
       has_certificate: form.has_certificate,
       regular_price: Number(form.regular_price) || 0,
       student_price: Number(form.student_price) || 0,
@@ -120,7 +131,11 @@ function CoursesPage() {
     const { data: userData } = await supabase.auth.getUser();
     const error = editingId
       ? (await supabase.from("courses").update(payload).eq("id", editingId)).error
-      : (await supabase.from("courses").insert({ ...payload, created_by: userData.user?.id ?? null })).error;
+      : (
+          await supabase
+            .from("courses")
+            .insert({ ...payload, season_id: await fetchActiveSeasonId(), created_by: userData.user?.id ?? null })
+        ).error;
     setSaving(false);
     if (error) {
       toast.error(error.message);
@@ -190,6 +205,12 @@ function CoursesPage() {
             <Field label="Details" className="sm:col-span-2">
               <Textarea rows={3} value={form.details} onChange={(e) => set("details", e.target.value)} />
             </Field>
+            <Field label="Schedule start date">
+              <Input type="date" value={form.start_date} onChange={(e) => set("start_date", e.target.value)} />
+            </Field>
+            <Field label="Schedule end date">
+              <Input type="date" value={form.end_date} onChange={(e) => set("end_date", e.target.value)} />
+            </Field>
             <Field label="Class quantity">
               <Input type="number" min={1} value={form.class_quantity} onChange={(e) => set("class_quantity", e.target.value)} />
             </Field>
@@ -255,8 +276,14 @@ function CoursesPage() {
             No courses yet.
           </p>
         ) : (
-          <div className="grid gap-4">
-            {(courses ?? []).map((c) => (
+          (() => {
+            const withProgress = (courses ?? []).map((c) => ({ course: c, progress: courseProgress(c, sessions ?? []) }));
+            const buckets: Record<Lifecycle, typeof withProgress> = {
+              running: withProgress.filter((x) => x.progress.lifecycle === "running"),
+              completed: withProgress.filter((x) => x.progress.lifecycle === "completed"),
+              upcoming: withProgress.filter((x) => x.progress.lifecycle === "upcoming"),
+            };
+            const renderCard = ({ course: c, progress }: (typeof withProgress)[number]) => (
               <article key={c.id} className="rounded-3xl border border-border bg-card p-6 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -264,6 +291,9 @@ function CoursesPage() {
                     {c.mission ? <p className="text-sm text-muted-foreground">{c.mission}</p> : null}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={progress.lifecycle === "completed" ? "default" : "secondary"}>
+                      {LIFECYCLE_LABELS[progress.lifecycle]}
+                    </Badge>
                     <Badge variant="secondary">{c.class_quantity} classes</Badge>
                     {c.has_certificate ? (
                       <Badge className="gap-1">
@@ -273,6 +303,27 @@ function CoursesPage() {
                   </div>
                 </div>
                 {c.details ? <p className="mt-3 text-sm text-muted-foreground">{c.details}</p> : null}
+
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                    <span>
+                      Progress · {progress.completedClasses}/{progress.totalClasses} classes
+                    </span>
+                    <span>{progress.percent === 100 ? "100% Completed" : `${progress.percent}%`}</span>
+                  </div>
+                  <div className="mt-1.5 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-500"
+                      style={{ width: `${progress.percent}%` }}
+                    />
+                  </div>
+                  {c.start_date || c.end_date ? (
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      {c.start_date ?? "—"} → {c.end_date ?? "—"}
+                    </p>
+                  ) : null}
+                </div>
+
                 <dl className="mt-5 grid gap-3 sm:grid-cols-4">
                   <PriceCell label="Regular" value={money(c.regular_price)} />
                   <PriceCell label="Student special" value={money(c.student_price)} highlight />
@@ -294,9 +345,30 @@ function CoursesPage() {
                   </div>
                 ) : null}
               </article>
-            ))}
-          </div>
+            );
+            return (
+              <Tabs defaultValue="running">
+                <TabsList className="flex-wrap">
+                  <TabsTrigger value="running">Running ({buckets.running.length})</TabsTrigger>
+                  <TabsTrigger value="completed">Completed ({buckets.completed.length})</TabsTrigger>
+                  <TabsTrigger value="upcoming">Upcoming ({buckets.upcoming.length})</TabsTrigger>
+                </TabsList>
+                {(["running", "completed", "upcoming"] as Lifecycle[]).map((key) => (
+                  <TabsContent key={key} value={key} className="mt-4 grid gap-4">
+                    {buckets[key].length === 0 ? (
+                      <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+                        No {LIFECYCLE_LABELS[key].toLowerCase()} courses.
+                      </p>
+                    ) : (
+                      buckets[key].map(renderCard)
+                    )}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            );
+          })()
         )}
+
       </section>
 
       {staff ? (

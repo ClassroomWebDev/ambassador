@@ -87,6 +87,13 @@ export const createMember = createServerFn({ method: "POST" })
 
     const { data: autoId } = await supabaseAdmin.rpc("next_auto_id", { _role: data.role });
 
+    // Tag the new member to the season that is currently running.
+    const { data: activeSeason } = await supabaseAdmin
+      .from("seasons")
+      .select("id")
+      .eq("is_active", true)
+      .maybeSingle();
+
     const { error: profileErr } = await supabaseAdmin
       .from("profiles")
       .update({
@@ -97,8 +104,10 @@ export const createMember = createServerFn({ method: "POST" })
         mentor_id: data.role === "ambassador" || data.role === "coordinator" ? (data.mentor_id ?? null) : null,
         support_manager_id: data.role === "support_manager" ? null : (data.support_manager_id ?? null),
         coordinator_id: data.role === "ambassador" ? (data.coordinator_id ?? null) : null,
+        season_id: activeSeason?.id ?? null,
         ...(autoId ? { auto_id: autoId as string } : {}),
       })
+
       .eq("id", uid);
     if (profileErr) throw new Error(profileErr.message);
 
