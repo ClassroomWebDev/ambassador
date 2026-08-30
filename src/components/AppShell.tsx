@@ -17,6 +17,7 @@ import {
   Trophy,
   Users,
   UserRoundCog,
+  Star,
   X,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -39,6 +40,7 @@ type NavItem = {
     | "/certificates"
     | "/seasons"
     | "/cms"
+    | "/reviews"
     | "/profile"
     | "/support";
   label: string;
@@ -54,6 +56,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
   const events: NavItem = { to: "/events", label: "Events", icon: CalendarDays };
   const calendar: NavItem = { to: "/calendar", label: "Calendar", icon: CalendarRange };
   const certificates: NavItem = { to: "/certificates", label: "Certificates", icon: Award };
+  const reviews: NavItem = { to: "/reviews", label: "Reviews", icon: Star };
 
   if (role === "admin" || role === "support_manager") {
     return [
@@ -68,6 +71,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       certificates,
       { to: "/seasons", label: "Seasons", icon: Timer },
       { to: "/cms", label: "Website CMS", icon: LayoutTemplate },
+      reviews,
       { to: "/users", label: "Users", icon: Users },
       support,
       profile,
