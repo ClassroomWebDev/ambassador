@@ -6,6 +6,7 @@ import {
   statusSchema,
   resetPasswordSchema,
   deleteMemberSchema,
+  updateMemberSchema,
 } from "./members.server";
 
 export const listMembers = createServerFn({ method: "GET" })
@@ -13,19 +14,48 @@ export const listMembers = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     // await assertStaff(context.supabase as never, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [{ data: profiles, error }, { data: roles }] = await Promise.all([
+    const [{ data: profiles, error }, { data: roles }, authUsers] = await Promise.all([
       supabaseAdmin
         .from("profiles")
         .select(
-          "id, auto_id, full_name, mobile, status, institution, designation, mentor_id, coordinator_id, support_manager_id, learning_points, leadership_points",
+          "id, auto_id, full_name, mobile, status, institution, designation, mentor_id, coordinator_id, support_manager_id, learning_points, leadership_points, created_at",
         )
         .order("auto_id"),
       supabaseAdmin.from("user_roles").select("user_id, role"),
+      supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
     ]);
     if (error) throw new Error(error.message);
     const roleMap = new Map<string, string>();
     for (const r of roles ?? []) roleMap.set(r.user_id, r.role);
-    return (profiles ?? []).map((p) => ({ ...p, role: roleMap.get(p.id) ?? "ambassador" }));
+    const emailMap = new Map<string, string>();
+    for (const u of authUsers.data?.users ?? []) if (u.email) emailMap.set(u.id, u.email);
+    return (profiles ?? []).map((p) => ({
+      ...p,
+      role: roleMap.get(p.id) ?? "ambassador",
+      email: emailMap.get(p.id) ?? null,
+    }));
+  });
+
+export const updateMember = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => updateMemberSchema.parse(data))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { user_id, ...rest } = data;
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        full_name: rest.full_name,
+        mobile: rest.mobile,
+        institution: rest.institution ?? null,
+        designation: rest.designation ?? null,
+        mentor_id: rest.mentor_id ?? null,
+        support_manager_id: rest.support_manager_id ?? null,
+        coordinator_id: rest.coordinator_id ?? null,
+      })
+      .eq("id", user_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const createMember = createServerFn({ method: "POST" })
