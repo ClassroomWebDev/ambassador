@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
 import { ExternalLink } from "lucide-react";
 import type { LogoBoardRow } from "@/hooks/useEcosystem";
+
 
 /**
  * Public logo showcase board: a clean, evenly aligned logo grid.
