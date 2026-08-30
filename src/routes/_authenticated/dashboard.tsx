@@ -31,10 +31,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { title: "Dashboard — Ambassador Hub" },
       {
         name: "description",
-        content: "Role-based sales KPIs, season target progress, points breakdown and the top 10 leaderboard.",
+        content: "Role-based opportunity KPIs, season target progress, points breakdown and the top 10 leaderboard.",
       },
       { property: "og:title", content: "Dashboard — Ambassador Hub" },
-      { property: "og:description", content: "Sales KPIs, points and leaderboard in one place." },
+      { property: "og:description", content: "Opportunity KPIs, points and leaderboard in one place." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -46,7 +46,7 @@ const money = (v: number) => `৳${Number(v || 0).toLocaleString("en-US")}`;
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
 function kpis(sales: Sale[], seasonStart: string | undefined) {
-  const approved = sales.filter((s) => s.status === "approved");
+  const approved = sales.filter((s) => s.status === "approved" && !s.deleted_at);
   const today = startOfDay(new Date());
   const day = 86_400_000;
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
@@ -75,7 +75,7 @@ function dailySeries(sales: Sale[]) {
   const today = startOfDay(new Date());
   return Array.from({ length: 14 }, (_, i) => {
     const from = today - (13 - i) * day;
-    const total = sales
+    const total = sales.filter((s) => !s.deleted_at)
       .filter((s) => s.status === "approved")
       .filter((s) => {
         const t = new Date(s.created_at).getTime();
@@ -111,7 +111,7 @@ function Dashboard() {
       </header>
 
       <section className="space-y-4">
-        <h2 className="font-display text-xl font-semibold">Sales performance</h2>
+        <h2 className="font-display text-xl font-semibold">Opportunity performance</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {cards.map((c) => (
             <article key={c.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
@@ -123,7 +123,7 @@ function Dashboard() {
           ))}
         </div>
         <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
-          <p className="text-sm font-semibold">Approved sales · last 14 days</p>
+          <p className="text-sm font-semibold">Approved opportunities · last 14 days</p>
           <div className="mt-4 h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={series}>
@@ -181,7 +181,7 @@ function Dashboard() {
 function StaffPanel({ pending }: { pending: number }) {
   const { data: settings } = useProgramSettings();
   const { data: sales } = useSales();
-  const approvedPoints = (sales ?? []).filter((s) => s.status === "approved").length;
+  const approvedPoints = (sales ?? []).filter((s) => s.status === "approved" && !s.deleted_at).length;
   const target = settings?.season_target_points ?? 1000;
   const percent = Math.min(100, Math.round((approvedPoints / Math.max(target, 1)) * 100));
 
@@ -195,7 +195,7 @@ function StaffPanel({ pending }: { pending: number }) {
         <p className="mt-3 font-display text-3xl font-bold">{percent}%</p>
         <Progress value={percent} className="mt-3" />
         <p className="mt-2 text-xs text-muted-foreground">
-          {approvedPoints} approved sales against a {target} point season target.
+          {approvedPoints} approved opportunities against a {target} point season target.
         </p>
       </article>
       <article className="rounded-3xl border border-border bg-card p-6 shadow-sm">
@@ -203,7 +203,7 @@ function StaffPanel({ pending }: { pending: number }) {
         <p className="mt-3 font-display text-3xl font-bold text-primary">{pending}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild size="sm">
-            <Link to="/sales">Review sales</Link>
+            <Link to="/sales">Review opportunities</Link>
           </Button>
           <Button asChild size="sm" variant="secondary">
             <Link to="/users">Manage users</Link>
@@ -230,7 +230,7 @@ function TeamPanel({ title, showSalesLink = false }: { title: string; showSalesL
         <h2 className="font-display text-xl font-semibold">{title}</h2>
         {showSalesLink ? (
           <Button asChild size="sm">
-            <Link to="/sales">Enter a sale</Link>
+            <Link to="/sales">New opportunity</Link>
           </Button>
         ) : null}
       </div>
