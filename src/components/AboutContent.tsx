@@ -20,6 +20,8 @@ import {
   type SocialLink,
 } from "@/hooks/useEcosystem";
 import { byKind, usePublishedCms } from "@/hooks/useCms";
+import { AboutHeroDialog, LogoDialog, WingDialog } from "@/components/AboutAdminDialogs";
+import { useMyRole } from "@/hooks/useProfile";
 
 export const MOTHER = {
   name: "Classroom Bangladesh",
@@ -52,7 +54,26 @@ export function AboutContent() {
   const { data: logos } = useLogoBoards();
   const { data: wings } = useCompanyWings();
   const { data: cms } = usePublishedCms();
+  const { data: role } = useMyRole();
+  const isAdmin = role === "admin";
   const highlights = byKind(cms, "highlight");
+
+  // The mother company record is the wing with sort_order 0; the rest are sister concerns.
+  const mother = (wings ?? []).find((w) => w.sort_order === 0);
+  const sisters = (wings ?? []).filter((w) => w.sort_order !== 0);
+  const motherLinks: SocialLink[] = mother ? parseSocialLinks(mother.social_links) : [];
+  const about = {
+    name: mother?.name ?? MOTHER.name,
+    tagline: mother?.tagline ?? MOTHER.tagline,
+    story: mother?.description ?? MOTHER.story,
+    address: mother?.address ?? MOTHER.address,
+    helpline: mother?.helpline ?? MOTHER.helpline,
+    email: mother?.email ?? MOTHER.email,
+  };
+  const heroLinks =
+    motherLinks.length > 0
+      ? motherLinks.map((l) => ({ label: l.label, url: l.url, icon: iconFor(l.label) }))
+      : MOTHER_LINKS;
 
   return (
     <div className="space-y-10">
@@ -63,14 +84,19 @@ export function AboutContent() {
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
               <Sparkles className="size-3.5" /> Mother Company
             </span>
+            {isAdmin ? (
+              <div className="mt-4">
+                <AboutHeroDialog mother={mother} fallback={about} />
+              </div>
+            ) : null}
             <h1 className="mt-5 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-              {MOTHER.name}
+              {about.name}
             </h1>
-            <p className="mt-3 text-sm font-semibold text-surface-dark-foreground/70">{MOTHER.tagline}</p>
-            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-surface-dark-foreground/80">{MOTHER.story}</p>
+            <p className="mt-3 text-sm font-semibold text-surface-dark-foreground/70">{about.tagline}</p>
+            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-surface-dark-foreground/80">{about.story}</p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              {MOTHER_LINKS.map((l) => (
+              {heroLinks.map((l) => (
                 <a
                   key={l.label}
                   href={l.url}
@@ -89,19 +115,19 @@ export function AboutContent() {
           <aside className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-6">
             <h2 className="font-display text-base font-bold">Corporate contact</h2>
             <p className="flex gap-2 text-sm text-surface-dark-foreground/80">
-              <MapPin className="mt-0.5 size-4 shrink-0" /> {MOTHER.address}
+              <MapPin className="mt-0.5 size-4 shrink-0" /> {about.address}
             </p>
             <a
-              href={`tel:${MOTHER.helpline.replace(/\s/g, "")}`}
+              href={`tel:${about.helpline.replace(/\s/g, "")}`}
               className="flex gap-2 text-sm text-surface-dark-foreground/80 hover:text-surface-dark-foreground"
             >
-              <PhoneCall className="mt-0.5 size-4 shrink-0" /> {MOTHER.helpline}
+              <PhoneCall className="mt-0.5 size-4 shrink-0" /> {about.helpline}
             </a>
             <a
-              href={`mailto:${MOTHER.email}`}
+              href={`mailto:${about.email}`}
               className="flex gap-2 text-sm text-surface-dark-foreground/80 hover:text-surface-dark-foreground"
             >
-              <Mail className="mt-0.5 size-4 shrink-0" /> {MOTHER.email}
+              <Mail className="mt-0.5 size-4 shrink-0" /> {about.email}
             </a>
             {highlights.length > 0 ? (
               <ul className="mt-6 grid gap-3 border-t border-white/10 pt-5">
@@ -122,6 +148,19 @@ export function AboutContent() {
         title="Our Enterprise Wings / Sister Concerns"
         subtitle="One group, many specialised enterprises."
         logos={logosByCategory(logos, "wing")}
+        {...(isAdmin
+          ? {
+              action: <LogoDialog category="wing" nextOrder={logosByCategory(logos, "wing").length + 1} label="+ Add Logo" />,
+              emptyAction: (
+                <LogoDialog
+                  category="wing"
+                  nextOrder={1}
+                  label="+ Add First Logo"
+                  variant="default"
+                />
+              ),
+            }
+          : {})}
       />
 
       {/* Logo board 2 */}
@@ -130,6 +169,16 @@ export function AboutContent() {
         subtitle="Corporate houses who build talent with us."
         logos={logosByCategory(logos, "client")}
         tone="dark"
+        {...(isAdmin
+          ? {
+              action: (
+                <LogoDialog category="client" nextOrder={logosByCategory(logos, "client").length + 1} label="+ Add Logo" />
+              ),
+              emptyAction: (
+                <LogoDialog category="client" nextOrder={1} label="+ Add First Logo" variant="default" />
+              ),
+            }
+          : {})}
       />
 
       {/* Logo board 3 */}
@@ -137,14 +186,32 @@ export function AboutContent() {
         title="Represented Campuses & Universities"
         subtitle="Colleges and universities from where our ambassadors are selected."
         logos={logosByCategory(logos, "campus")}
+        {...(isAdmin
+          ? {
+              action: (
+                <LogoDialog category="campus" nextOrder={logosByCategory(logos, "campus").length + 1} label="+ Add Logo" />
+              ),
+              emptyAction: (
+                <LogoDialog category="campus" nextOrder={1} label="+ Add First Logo" variant="default" />
+              ),
+            }
+          : {})}
       />
 
       {/* Sister concerns detail cards */}
-      {(wings ?? []).length > 0 ? (
+      {sisters.length > 0 || isAdmin ? (
         <section>
-          <h2 className="mb-6 font-display text-2xl font-bold tracking-tight">Sister Concerns in Detail</h2>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-display text-2xl font-bold tracking-tight">Sister Concerns in Detail</h2>
+            {isAdmin ? <WingDialog nextOrder={(wings ?? []).length + 1} /> : null}
+          </div>
+          {sisters.length === 0 ? (
+            <p className="rounded-3xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+              No wings or sister concerns added yet.
+            </p>
+          ) : null}
           <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {(wings ?? []).map((w) => {
+            {sisters.map((w) => {
               const links: SocialLink[] = parseSocialLinks(w.social_links);
               return (
                 <li key={w.id} className="flex h-full flex-col rounded-3xl border border-border bg-card p-6 shadow-card">
