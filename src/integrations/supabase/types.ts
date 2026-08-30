@@ -465,6 +465,31 @@ export type Database = {
       is_my_ambassador: { Args: { _profile_id: string }; Returns: boolean }
       is_my_supervisor: { Args: { _profile_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      leaderboard_ambassadors: {
+        Args: { _limit?: number }
+        Returns: {
+          auto_id: string
+          full_name: string
+          institution: string
+          leadership_points: number
+          learning_points: number
+          rank: number
+          total_points: number
+          user_id: string
+        }[]
+      }
+      leaderboard_coordinators: {
+        Args: { _limit?: number }
+        Returns: {
+          auto_id: string
+          full_name: string
+          institution: string
+          rank: number
+          sales_amount: number
+          sales_count: number
+          user_id: string
+        }[]
+      }
       leaderboard_top: {
         Args: { _limit?: number }
         Returns: {
