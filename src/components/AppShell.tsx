@@ -70,9 +70,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
   const { data: role } = useMyRole();
-  const effectiveRole = "admin";
   const [menuOpen, setMenuOpen] = useState(false);
-  const NAV = navForRole("admin");
+  const NAV = navForRole(role);
 
   async function signOut() {
     await queryClient.cancelQueries();
