@@ -6,6 +6,7 @@ import {
   statusSchema,
   resetPasswordSchema,
   deleteMemberSchema,
+  updateMemberSchema,
 } from "./members.server";
 
 export const listMembers = createServerFn({ method: "GET" })
