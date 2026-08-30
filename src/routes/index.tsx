@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Users, Award, BookOpen, ArrowRight, ShieldCheck, Quote, Sparkles } from "lucide-react";
 import { SeasonCountdown } from "@/components/SeasonCountdown";
 import { byKind, usePublishedCms } from "@/hooks/useCms";
+import { LogoBoard } from "@/components/LogoBoard";
+import { ReviewShowcase } from "@/components/ReviewShowcase";
+import { logosByCategory, useApprovedReviews, useLogoBoards } from "@/hooks/useEcosystem";
 
 export const Route = createFileRoute("/")({
   component: Homepage,
@@ -47,6 +50,8 @@ const DEFAULT_FEATURES = [
 
 function Homepage() {
   const { data: cms } = usePublishedCms();
+  const { data: logos } = useLogoBoards();
+  const { data: reviews } = useApprovedReviews();
   const heroes = byKind(cms, "hero");
   const features = byKind(cms, "feature");
   const highlights = byKind(cms, "highlight");
@@ -69,12 +74,20 @@ function Homepage() {
               <span className="text-xs font-medium text-slate-500">Empowering Campus Leaders</span>
             </div>
           </div>
+          <nav className="flex items-center gap-2">
+          <Link
+            to="/about"
+            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-900"
+          >
+            About Us
+          </Link>
           <Link
             to="/auth"
             className="inline-flex items-center justify-center rounded-lg bg-[#991B1B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-800"
           >
             Sign In
           </Link>
+          </nav>
         </div>
       </header>
 
@@ -173,6 +186,31 @@ function Homepage() {
             </div>
           </section>
         ) : null}
+
+        {/* Logo showcase boards */}
+        <div className="mx-auto w-full max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
+          <LogoBoard
+            title="Our Wings & Sister Concerns"
+            subtitle="One group, many specialised enterprises."
+            logos={logosByCategory(logos, "wing")}
+          />
+          <LogoBoard
+            title="Clients & Partners"
+            subtitle="Corporate houses who build talent with us."
+            logos={logosByCategory(logos, "client")}
+            tone="dark"
+          />
+          <LogoBoard
+            title="Campus & Institutional Partners"
+            subtitle="Colleges and universities our ambassadors proudly represent."
+            logos={logosByCategory(logos, "campus")}
+          />
+        </div>
+
+        {/* Approved member reviews */}
+        <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <ReviewShowcase reviews={reviews ?? []} title="Reviews from ambassadors & coordinators" />
+        </div>
 
         {/* FAQs */}
         {faqs.length > 0 ? (
