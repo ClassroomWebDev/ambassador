@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedEventsRouteImport } from './routes/_authenticated/events'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
 import { Route as AuthenticatedNoticesRouteImport } from './routes/_authenticated/notices'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -49,6 +50,11 @@ const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEventsRoute = AuthenticatedEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLeaderboardRoute =
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/attendance': typeof AuthenticatedAttendanceRoute
   '/courses': typeof AuthenticatedCoursesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/events': typeof AuthenticatedEventsRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/notices': typeof AuthenticatedNoticesRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/attendance': typeof AuthenticatedAttendanceRoute
   '/courses': typeof AuthenticatedCoursesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/events': typeof AuthenticatedEventsRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/notices': typeof AuthenticatedNoticesRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/_authenticated/attendance': typeof AuthenticatedAttendanceRoute
   '/_authenticated/courses': typeof AuthenticatedCoursesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/events': typeof AuthenticatedEventsRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/_authenticated/notices': typeof AuthenticatedNoticesRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/courses'
     | '/dashboard'
+    | '/events'
     | '/leaderboard'
     | '/notices'
     | '/profile'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/courses'
     | '/dashboard'
+    | '/events'
     | '/leaderboard'
     | '/notices'
     | '/profile'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/_authenticated/attendance'
     | '/_authenticated/courses'
     | '/_authenticated/dashboard'
+    | '/_authenticated/events'
     | '/_authenticated/leaderboard'
     | '/_authenticated/notices'
     | '/_authenticated/profile'
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/events': {
+      id: '/_authenticated/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof AuthenticatedEventsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/leaderboard': {
       id: '/_authenticated/leaderboard'
       path: '/leaderboard'
@@ -266,6 +285,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRoute
   AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEventsRoute: typeof AuthenticatedEventsRoute
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
   AuthenticatedNoticesRoute: typeof AuthenticatedNoticesRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -278,6 +298,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttendanceRoute: AuthenticatedAttendanceRoute,
   AuthenticatedCoursesRoute: AuthenticatedCoursesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEventsRoute: AuthenticatedEventsRoute,
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
   AuthenticatedNoticesRoute: AuthenticatedNoticesRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
