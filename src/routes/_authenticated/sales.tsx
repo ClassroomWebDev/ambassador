@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Loader2, Printer, Send } from "lucide-react";
+import { BadgeCheck, Loader2, Printer, RotateCcw, Send, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useProfile } from "@/hooks/useProfile";
 import { isStaffRole, useCourses, useProgramSettings, useSales, useTeam, type Sale } from "@/hooks/useBusiness";
@@ -11,59 +11,61 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/sales")({
   head: () => ({
     meta: [
-      { title: "Sales & Approvals — Ambassador Hub" },
+      { title: "Opportunities — Ambassador Hub" },
       {
         name: "description",
-        content: "Submit course sales at the student special price and approve pending sales to award leadership points.",
+        content:
+          "Submit new opportunities at the student special price and approve pending opportunities to award leadership points.",
       },
-      { property: "og:title", content: "Sales & Approvals — Ambassador Hub" },
-      { property: "og:description", content: "Sales entry, approvals, invoices and leadership points." },
+      { property: "og:title", content: "Opportunities — Ambassador Hub" },
+      { property: "og:description", content: "Opportunity entry, approvals, invoices and leadership points." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SalesPage,
+  component: OpportunityPage,
 });
 
 const PAYMENT_METHODS = ["bKash", "Nagad", "Rocket", "Bank Transfer", "Cash"] as const;
 const money = (v: number) => `৳${Number(v || 0).toLocaleString("en-US")}`;
 
-function SalesPage() {
+function OpportunityPage() {
   const { data: role } = useMyRole();
   const staff = isStaffRole(role);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Sales</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Opportunity</p>
         <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">
-          {staff ? "Sales & approvals" : "Submit a sale"}
+          {staff ? "Opportunities & approvals" : "New opportunity"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {staff
-            ? "Review pending submissions, approve to generate the invoice and award leadership points."
-            : "Enrol a student at the student special price — leadership points arrive once approved."}
+            ? "Review pending opportunities, approve to generate the invoice and award leadership points."
+            : "Enrol a student at the student special price — leadership points arrive once the opportunity is approved."}
         </p>
       </header>
 
-      <SalesEntry />
+      <OpportunityEntry />
       {staff ? <Approvals /> : null}
-      <MySales />
+      <OpportunityHistory />
     </div>
   );
 }
 
-function SalesEntry() {
+function OpportunityEntry() {
   const { data: role } = useMyRole();
   const { data: profile } = useProfile();
   const { data: courses } = useCourses();
   const { data: team } = useTeam();
   const queryClient = useQueryClient();
-  const isAmbassador = role === "ambassador" || !role;
+  const selfOnly = role === "ambassador" || !role;
 
   const [courseId, setCourseId] = useState("");
   const [ambassadorId, setAmbassadorId] = useState("");
@@ -78,7 +80,7 @@ function SalesEntry() {
 
   const course = useMemo(() => (courses ?? []).find((c) => c.id === courseId) ?? null, [courses, courseId]);
   const amount = Number(course?.student_price ?? 0);
-  const effectiveAmbassadorId = isAmbassador ? (profile?.id ?? "") : ambassadorId;
+  const effectiveAmbassadorId = selfOnly || !ambassadorId ? (profile?.id ?? "") : ambassadorId;
 
   async function submit() {
     if (!courseId) {
@@ -86,14 +88,13 @@ function SalesEntry() {
       return;
     }
     if (!effectiveAmbassadorId) {
-      toast.error("Select the ambassador this sale belongs to");
+      toast.error("Select the member this opportunity belongs to");
       return;
     }
     if (!studentName.trim() || !studentMobile.trim()) {
       toast.error("Student name and mobile are required");
       return;
     }
-
 
     setSaving(true);
     const { data: userData } = await supabase.auth.getUser();
@@ -115,7 +116,7 @@ function SalesEntry() {
       toast.error(error.message);
       return;
     }
-    toast.success("Sale submitted for approval");
+    toast.success("Opportunity submitted for approval");
     setStudentName("");
     setStudentMobile("");
     setStudentEmail("");
@@ -127,7 +128,7 @@ function SalesEntry() {
 
   return (
     <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
-      <h2 className="font-display text-xl font-semibold">Sales entry</h2>
+      <h2 className="font-display text-xl font-semibold">Opportunity entry</h2>
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
         <div className="grid gap-1.5 sm:col-span-2">
           <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Course *</Label>
@@ -155,8 +156,8 @@ function SalesEntry() {
         </div>
 
         <div className="grid gap-1.5">
-          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ambassador *</Label>
-          {isAmbassador ? (
+          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Credited to *</Label>
+          {selfOnly ? (
             <Input value={profile?.full_name ?? "You"} readOnly className="bg-muted" />
           ) : (
             <select
@@ -164,7 +165,7 @@ function SalesEntry() {
               onChange={(e) => setAmbassadorId(e.target.value)}
               className="h-10 rounded-xl border border-input bg-background px-3 text-sm"
             >
-              <option value="">Select assigned ambassador</option>
+              <option value="">Myself ({profile?.full_name ?? "me"})</option>
               {(team ?? []).map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.full_name || "Member"}
@@ -216,7 +217,7 @@ function SalesEntry() {
         </div>
       </div>
       <Button className="mt-6" onClick={() => void submit()} disabled={saving}>
-        {saving ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />} Submit sale
+        {saving ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />} Submit opportunity
       </Button>
     </section>
   );
@@ -227,7 +228,7 @@ function Approvals() {
   const { data: courses } = useCourses();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState<string | null>(null);
-  const pending = (sales ?? []).filter((s) => s.status === "pending");
+  const pending = (sales ?? []).filter((s) => s.status === "pending" && !s.deleted_at);
 
   async function decide(id: string, status: "approved" | "rejected") {
     setBusy(id);
@@ -241,7 +242,7 @@ function Approvals() {
       toast.error(error.message);
       return;
     }
-    toast.success(status === "approved" ? "Sale approved — invoice created" : "Sale rejected");
+    toast.success(status === "approved" ? "Opportunity approved — invoice created" : "Opportunity rejected");
     void queryClient.invalidateQueries({ queryKey: ["sales"] });
   }
 
@@ -297,50 +298,138 @@ function Approvals() {
   );
 }
 
-function MySales() {
+function OpportunityHistory() {
   const { data: sales, isLoading } = useSales();
   const { data: courses } = useCourses();
   const { data: settings } = useProgramSettings();
+  const { data: role } = useMyRole();
+  const staff = isStaffRole(role);
+  const queryClient = useQueryClient();
   const [receipt, setReceipt] = useState<Sale | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const rows = sales ?? [];
+  const live = rows.filter((s) => !s.deleted_at);
+  const groups = {
+    pending: live.filter((s) => s.status === "pending"),
+    approved: live.filter((s) => s.status === "approved"),
+    rejected: live.filter((s) => s.status === "rejected"),
+    trash: rows.filter((s) => !!s.deleted_at),
+  };
+
+  async function softDelete(id: string) {
+    setBusy(id);
+    const { error } = await supabase.from("sales").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+    setBusy(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Opportunity moved to trash");
+    void queryClient.invalidateQueries({ queryKey: ["sales"] });
+  }
+
+  async function restore(id: string) {
+    setBusy(id);
+    const { error } = await supabase.from("sales").update({ deleted_at: null }).eq("id", id);
+    setBusy(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Opportunity restored");
+    void queryClient.invalidateQueries({ queryKey: ["sales"] });
+  }
+
+  function Card({ s, trashed }: { s: Sale; trashed: boolean }) {
+    return (
+      <article className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="font-semibold">{s.student_name}</p>
+            <p className="text-xs text-muted-foreground">
+              {(courses ?? []).find((c) => c.id === s.course_id)?.name ?? "—"} · {s.payment_method} ·{" "}
+              {money(Number(s.amount))}
+            </p>
+          </div>
+          <Badge variant={s.status === "approved" ? "default" : s.status === "rejected" ? "destructive" : "secondary"}>
+            {s.status}
+          </Badge>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          {s.status === "approved" ? (
+            <p className="text-xs font-medium text-muted-foreground">
+              Invoice {s.invoice_no} · TX {s.tx_id}
+            </p>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            {s.status === "approved" && !trashed ? (
+              <Button size="sm" variant="secondary" onClick={() => setReceipt(s)}>
+                <Printer className="size-3.5" /> Money receipt
+              </Button>
+            ) : null}
+            {staff && trashed ? (
+              <Button size="sm" variant="secondary" disabled={busy === s.id} onClick={() => void restore(s.id)}>
+                {busy === s.id ? <Loader2 className="size-3.5 animate-spin" /> : <RotateCcw className="size-3.5" />}{" "}
+                Restore
+              </Button>
+            ) : null}
+            {staff && !trashed ? (
+              <Button size="sm" variant="ghost" disabled={busy === s.id} onClick={() => void softDelete(s.id)}>
+                <Trash2 className="size-3.5" /> Delete
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  function List({ items, empty, trashed = false }: { items: Sale[]; empty: string; trashed?: boolean }) {
+    if (items.length === 0) {
+      return (
+        <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">{empty}</p>
+      );
+    }
+    return (
+      <div className="grid gap-3">
+        {items.map((s) => (
+          <Card key={s.id} s={s} trashed={trashed} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <section className="space-y-4">
-      <h2 className="font-display text-xl font-semibold">Sales history</h2>
+      <h2 className="font-display text-xl font-semibold">Opportunity history</h2>
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
-      ) : (sales ?? []).length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-          No sales submitted yet.
-        </p>
       ) : (
-        <div className="grid gap-3">
-          {(sales ?? []).map((s) => (
-            <article key={s.id} className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold">{s.student_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {(courses ?? []).find((c) => c.id === s.course_id)?.name ?? "—"} · {s.payment_method} ·{" "}
-                    {money(Number(s.amount))}
-                  </p>
-                </div>
-                <Badge variant={s.status === "approved" ? "default" : s.status === "rejected" ? "destructive" : "secondary"}>
-                  {s.status}
-                </Badge>
-              </div>
-              {s.status === "approved" ? (
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Invoice {s.invoice_no} · TX {s.tx_id}
-                  </p>
-                  <Button size="sm" variant="secondary" onClick={() => setReceipt(s)}>
-                    <Printer className="size-3.5" /> Money receipt
-                  </Button>
-                </div>
-              ) : null}
-            </article>
-          ))}
-        </div>
+        <Tabs defaultValue="pending">
+          <TabsList className="flex-wrap">
+            <TabsTrigger value="pending">Pending ({groups.pending.length})</TabsTrigger>
+            <TabsTrigger value="approved">Approved ({groups.approved.length})</TabsTrigger>
+            <TabsTrigger value="rejected">Rejected ({groups.rejected.length})</TabsTrigger>
+            {staff ? <TabsTrigger value="trash">Trash ({groups.trash.length})</TabsTrigger> : null}
+          </TabsList>
+          <TabsContent value="pending" className="mt-4">
+            <List items={groups.pending} empty="No pending opportunities." />
+          </TabsContent>
+          <TabsContent value="approved" className="mt-4">
+            <List items={groups.approved} empty="No approved opportunities yet." />
+          </TabsContent>
+          <TabsContent value="rejected" className="mt-4">
+            <List items={groups.rejected} empty="No rejected opportunities." />
+          </TabsContent>
+          {staff ? (
+            <TabsContent value="trash" className="mt-4">
+              <List items={groups.trash} empty="Trash is empty." trashed />
+            </TabsContent>
+          ) : null}
+        </Tabs>
       )}
       {receipt ? (
         <MoneyReceipt
