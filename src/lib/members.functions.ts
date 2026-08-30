@@ -113,24 +113,20 @@ export const setMemberStatus = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-async function hasRole(
-  supabase: { rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" | "support_manager" }) => Promise<{ data: boolean | null }> },
-  userId: string,
-  role: "admin" | "support_manager",
-) {
-  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: role });
-  return data === true;
+async function getRoles(userId: string): Promise<string[]> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId);
+  return (data ?? []).map((r) => r.role as string);
 }
 
 export const resetUserPassword = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => resetPasswordSchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
-    const [isAdmin, isManager] = await Promise.all([
-      hasRole(context.supabase as never, context.userId, "admin"),
-      hasRole(context.supabase as never, context.userId, "support_manager"),
-    ]);
-    if (!isAdmin && !isManager) throw new Error("Only admins and managers can reset passwords");
+    const roles = await getRoles(context.userId);
+    if (!roles.includes("admin") && !roles.includes("support_manager")) {
+      throw new Error("Only admins and managers can reset passwords");
+    }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
@@ -144,8 +140,8 @@ export const deleteMember = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => deleteMemberSchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
-    const isAdmin = await hasRole(context.supabase as never, context.userId, "admin");
-    if (!isAdmin) throw new Error("Only admins can delete members");
+    const roles = await getRoles(context.userId);
+    if (!roles.includes("admin")) throw new Error("Only admins can delete members");
     if (data.user_id === context.userId) throw new Error("You cannot delete your own account");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
