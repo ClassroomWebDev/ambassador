@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ArrowRight, Loader2, Plus, Target } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { useMyRole, useProfile } from "@/hooks/useProfile";
+import { useMyRole, useProfile, useSessionUser } from "@/hooks/useProfile";
 import {
   isStaffRole,
   useCourses,
