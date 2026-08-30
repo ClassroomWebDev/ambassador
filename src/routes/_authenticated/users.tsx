@@ -45,7 +45,7 @@ export const Route = createFileRoute("/_authenticated/users")({
       { title: "User management — Ambassador Hub" },
       {
         name: "description",
-        content: "Create mentors, coordinators and campus ambassadors and switch accounts between active and held.",
+        content: "Create managers, faculty, coordinators and campus ambassadors and switch accounts between active and held.",
       },
       { property: "og:title", content: "User management — Ambassador Hub" },
       { property: "og:description", content: "Create members and control account status." },
@@ -56,7 +56,7 @@ export const Route = createFileRoute("/_authenticated/users")({
   component: UsersPage,
 });
 
-type NewRole = "mentor" | "coordinator" | "ambassador";
+type NewRole = "support_manager" | "mentor" | "coordinator" | "ambassador";
 
 type MemberRow = {
   id: string;
@@ -87,7 +87,7 @@ function UsersPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Administration</p>
         <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">User management</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Create mentors (CBM), coordinators (CBC) and campus ambassadors (CBA), then control account status.
+          Create managers (CBM), faculty (CBF), coordinators (CBC) and campus ambassadors (CBA), then control account status.
         </p>
       </header>
 
@@ -168,7 +168,8 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
           >
             <option value="ambassador">Campus Ambassador (CBA)</option>
             <option value="coordinator">Coordinator (CBC)</option>
-            <option value="mentor">Mentor (CBM)</option>
+            <option value="mentor">Faculty (CBF)</option>
+            <option value="support_manager">Manager (CBM)</option>
           </select>
         </Field>
         <Field label="Institution">
@@ -177,15 +178,15 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
         <Field label="Designation">
           <Input value={form.designation} onChange={set("designation")} />
         </Field>
-        <Field label="Mentor">
-          <Picker value={form.mentor_id} onChange={set("mentor_id")} options={mentors} placeholder="Select mentor" />
+        <Field label="Faculty (CBF)">
+          <Picker value={form.mentor_id} onChange={set("mentor_id")} options={mentors} placeholder="Select faculty" />
         </Field>
-        <Field label="Support manager">
+        <Field label="Manager (CBM)">
           <Picker
             value={form.support_manager_id}
             onChange={set("support_manager_id")}
             options={managers}
-            placeholder="Select support manager"
+            placeholder="Select manager"
           />
         </Field>
         {form.role === "ambassador" ? (
@@ -211,7 +212,7 @@ const TABS: { key: string; label: string; role?: string }[] = [
   { key: "all", label: "All" },
   { key: "admin", label: "Admin", role: "admin" },
   { key: "support_manager", label: "Manager", role: "support_manager" },
-  { key: "mentor", label: "Mentor", role: "mentor" },
+  { key: "mentor", label: "Faculty", role: "mentor" },
   { key: "coordinator", label: "Executive", role: "coordinator" },
   { key: "ambassador", label: "Ambassador", role: "ambassador" },
 ];
