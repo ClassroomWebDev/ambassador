@@ -47,7 +47,7 @@ export function ReviewSubmission() {
       status: "pending",
     });
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Review submitted for approval");
     setText("");
     setDesignation("");

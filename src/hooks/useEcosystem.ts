@@ -9,7 +9,7 @@ export type MemberReview = Database["public"]["Tables"]["member_reviews"]["Row"]
 export type LogoCategory = "wing" | "client" | "campus";
 export type ReviewStatus = "pending" | "approved" | "rejected";
 
-export type SocialLink = { label: string; url: string; icon?: string };
+export type SocialLink = { label: string; url: string; icon?: string | undefined };
 
 export const LOGO_CATEGORIES: { value: LogoCategory; label: string; hint: string }[] = [
   { value: "wing", label: "Wings & Sister Concerns", hint: "Enterprise wing logos of the group." },

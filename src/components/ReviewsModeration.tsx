@@ -56,7 +56,7 @@ function ModerationCard({ row }: { row: MemberReview }) {
     setBusy(true);
     const { error } = await supabase.from("member_reviews").update({ status }).eq("id", row.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(`Review ${status}`);
     refresh();
   }
@@ -65,7 +65,7 @@ function ModerationCard({ row }: { row: MemberReview }) {
     setBusy(true);
     const { error } = await supabase.from("member_reviews").delete().eq("id", row.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Review deleted");
     refresh();
   }

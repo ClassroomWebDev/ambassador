@@ -109,7 +109,7 @@ function LogoCreator({ category, nextOrder }: { category: LogoCategory; nextOrde
       created_by: userData.user?.id ?? null,
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Logo added");
     setTitle("");
     setLogoUrl("");
@@ -168,7 +168,7 @@ function LogoEditor({ row, canManage }: { row: LogoBoardRow; canManage: boolean 
       })
       .eq("id", row.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Logo saved");
     refresh();
   }
@@ -177,7 +177,7 @@ function LogoEditor({ row, canManage }: { row: LogoBoardRow; canManage: boolean 
     setBusy(true);
     const { error } = await supabase.from("logo_boards").delete().eq("id", row.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Logo deleted");
     refresh();
   }
@@ -284,7 +284,7 @@ function WingCreator({ nextOrder }: { nextOrder: number }) {
   const [busy, setBusy] = useState(false);
 
   async function create() {
-    if (!draft.name.trim()) return toast.error("Name is required");
+    if (!draft.name.trim()) { toast.error("Name is required"); return; }
     setBusy(true);
     const { data: userData } = await supabase.auth.getUser();
     const { error } = await supabase.from("company_wings").insert({
@@ -300,7 +300,7 @@ function WingCreator({ nextOrder }: { nextOrder: number }) {
       created_by: userData.user?.id ?? null,
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Sister concern added");
     setDraft({ ...emptyWing });
     void queryClient.invalidateQueries({ queryKey: ["company-wings"] });
@@ -415,7 +415,7 @@ function WingEditor({ row, canManage }: { row: CompanyWing; canManage: boolean }
       })
       .eq("id", row.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Saved");
     refresh();
   }
@@ -424,7 +424,7 @@ function WingEditor({ row, canManage }: { row: CompanyWing; canManage: boolean }
     setBusy(true);
     const { error } = await supabase.from("company_wings").delete().eq("id", row.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
     refresh();
   }
