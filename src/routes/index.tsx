@@ -64,10 +64,7 @@ function Homepage() {
             <span>Official Leadership Platform</span>
           </div>
 
-          <h1
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6"
-          >
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
             Classroom <span className="text-[#991B1B]">Ambassador</span> Program
           </h1>
 
