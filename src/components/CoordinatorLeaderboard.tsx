@@ -12,7 +12,7 @@ export function CoordinatorLeaderboard({ limit = 10 }: { limit?: number }) {
     <section className="space-y-4">
       <div className="flex items-center gap-2">
         <BarChart3 className="size-5 text-primary" />
-        <h2 className="font-display text-xl font-semibold">Top {limit} coordinators by sales</h2>
+        <h2 className="font-display text-xl font-semibold">Top {limit} coordinators by opportunities</h2>
       </div>
 
       {isLoading ? (
@@ -23,7 +23,7 @@ export function CoordinatorLeaderboard({ limit = 10 }: { limit?: number }) {
         </div>
       ) : (rows ?? []).length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-          No coordinator sales recorded yet.
+          No coordinator opportunities recorded yet.
         </p>
       ) : (
         <>
@@ -45,7 +45,7 @@ export function CoordinatorLeaderboard({ limit = 10 }: { limit?: number }) {
                   </div>
                   <div className="text-right">
                     <p className="font-display text-lg font-bold text-primary">{taka(r.sales_amount)}</p>
-                    <p className="text-xs text-muted-foreground">{r.sales_count} sales</p>
+                    <p className="text-xs text-muted-foreground">{r.sales_count} opportunities</p>
                   </div>
                 </div>
               </article>
@@ -61,7 +61,7 @@ export function CoordinatorLeaderboard({ limit = 10 }: { limit?: number }) {
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">Coordinator</th>
                   <th className="px-4 py-3">Institution</th>
-                  <th className="px-4 py-3 text-right">Sales</th>
+                  <th className="px-4 py-3 text-right">Opportunities</th>
                   <th className="px-4 py-3 text-right">Amount</th>
                 </tr>
               </thead>

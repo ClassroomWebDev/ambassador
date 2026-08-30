@@ -365,6 +365,7 @@ export type Database = {
           approved_by: string | null
           course_id: string
           created_at: string
+          deleted_at: string | null
           id: string
           invoice_no: string | null
           order_no: string | null
@@ -386,6 +387,7 @@ export type Database = {
           approved_by?: string | null
           course_id: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           invoice_no?: string | null
           order_no?: string | null
@@ -407,6 +409,7 @@ export type Database = {
           approved_by?: string | null
           course_id?: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           invoice_no?: string | null
           order_no?: string | null
@@ -454,6 +457,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_all_sales: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
