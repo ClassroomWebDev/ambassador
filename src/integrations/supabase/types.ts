@@ -144,6 +144,150 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          banner_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_cancelled: boolean
+          location: string
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          banner_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_cancelled?: boolean
+          location?: string
+          starts_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          banner_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_cancelled?: boolean
+          location?: string
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notices: {
+        Row: {
+          audience: Database["public"]["Enums"]["notice_audience"]
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          target_roles: Database["public"]["Enums"]["app_role"][]
+          target_user_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: Database["public"]["Enums"]["notice_audience"]
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          target_roles?: Database["public"]["Enums"]["app_role"][]
+          target_user_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: Database["public"]["Enums"]["notice_audience"]
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          target_roles?: Database["public"]["Enums"]["app_role"][]
+          target_user_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notices_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          event_id: string | null
+          id: string
+          is_read: boolean
+          kind: string
+          notice_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          is_read?: boolean
+          kind?: string
+          notice_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          is_read?: boolean
+          kind?: string
+          notice_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_notice_id_fkey"
+            columns: ["notice_id"]
+            isOneToOne: false
+            referencedRelation: "notices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -156,6 +300,7 @@ export type Database = {
           date_of_birth: string | null
           designation: string | null
           education: Json
+          experience: string | null
           facebook_link: string | null
           father_name: string | null
           favourite_book: string | null
@@ -181,6 +326,16 @@ export type Database = {
           photo_url: string | null
           present_address: string | null
           professional_title: string | null
+          ref1_designation: string | null
+          ref1_email: string | null
+          ref1_name: string | null
+          ref1_phone: string | null
+          ref1_relation: string | null
+          ref2_designation: string | null
+          ref2_email: string | null
+          ref2_name: string | null
+          ref2_phone: string | null
+          ref2_relation: string | null
           religion: string | null
           signature_url: string | null
           soft_skills: string | null
@@ -202,6 +357,7 @@ export type Database = {
           date_of_birth?: string | null
           designation?: string | null
           education?: Json
+          experience?: string | null
           facebook_link?: string | null
           father_name?: string | null
           favourite_book?: string | null
@@ -227,6 +383,16 @@ export type Database = {
           photo_url?: string | null
           present_address?: string | null
           professional_title?: string | null
+          ref1_designation?: string | null
+          ref1_email?: string | null
+          ref1_name?: string | null
+          ref1_phone?: string | null
+          ref1_relation?: string | null
+          ref2_designation?: string | null
+          ref2_email?: string | null
+          ref2_name?: string | null
+          ref2_phone?: string | null
+          ref2_relation?: string | null
           religion?: string | null
           signature_url?: string | null
           soft_skills?: string | null
@@ -248,6 +414,7 @@ export type Database = {
           date_of_birth?: string | null
           designation?: string | null
           education?: Json
+          experience?: string | null
           facebook_link?: string | null
           father_name?: string | null
           favourite_book?: string | null
@@ -273,6 +440,16 @@ export type Database = {
           photo_url?: string | null
           present_address?: string | null
           professional_title?: string | null
+          ref1_designation?: string | null
+          ref1_email?: string | null
+          ref1_name?: string | null
+          ref1_phone?: string | null
+          ref1_relation?: string | null
+          ref2_designation?: string | null
+          ref2_email?: string | null
+          ref2_name?: string | null
+          ref2_phone?: string | null
+          ref2_relation?: string | null
           religion?: string | null
           signature_url?: string | null
           soft_skills?: string | null
@@ -566,6 +743,7 @@ export type Database = {
         | "mentor"
         | "support_manager"
         | "admin"
+      notice_audience: "all" | "roles" | "individual"
       sale_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -702,6 +880,7 @@ export const Constants = {
         "support_manager",
         "admin",
       ],
+      notice_audience: ["all", "roles", "individual"],
       sale_status: ["pending", "approved", "rejected"],
     },
   },
