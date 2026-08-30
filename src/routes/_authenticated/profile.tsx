@@ -62,6 +62,7 @@ const EDITABLE_KEYS = [
   "present_address",
   "permanent_address",
   "career_objective",
+  "experience",
   "technical_skills",
   "soft_skills",
   "languages",
@@ -74,6 +75,16 @@ const EDITABLE_KEYS = [
   "institution",
   "alt_mobile",
   "whatsapp",
+  "ref1_name",
+  "ref1_designation",
+  "ref1_phone",
+  "ref1_email",
+  "ref1_relation",
+  "ref2_name",
+  "ref2_designation",
+  "ref2_phone",
+  "ref2_email",
+  "ref2_relation",
 ] as const;
 
 type EditableKey = (typeof EDITABLE_KEYS)[number];
