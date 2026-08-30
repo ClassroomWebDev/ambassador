@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { BadgeCheck, Loader2, Printer, RotateCcw, Send, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActiveSeasonId } from "@/hooks/useSeasons";
 import { useMyRole, useProfile } from "@/hooks/useProfile";
 import { isStaffRole, useCourses, useProgramSettings, useSales, useTeam, type Sale } from "@/hooks/useBusiness";
 import { MoneyReceipt } from "@/components/MoneyReceipt";
@@ -59,6 +60,23 @@ function OpportunityPage() {
   );
 }
 
+/** e.g. "31 Aug 2026, 03:30 PM" */
+function stamp(value: string | null) {
+  if (!value) return "—";
+  return new Date(value)
+    .toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(/,([^,]*)$/, ",$1")
+    .toUpperCase()
+    .replace(/(\d{2}:\d{2}) ?(AM|PM)/, "$1 $2");
+}
+
 function OpportunityEntry() {
   const { data: role } = useMyRole();
   const { data: profile } = useProfile();
@@ -110,6 +128,8 @@ function OpportunityEntry() {
       order_no: orderNo.trim() || null,
       payment_ref: paymentRef.trim() || null,
       amount,
+      season_id: await fetchActiveSeasonId(),
+      created_at: new Date().toISOString(),
     });
     setSaving(false);
     if (error) {
@@ -351,6 +371,7 @@ function OpportunityHistory() {
               {(courses ?? []).find((c) => c.id === s.course_id)?.name ?? "—"} · {s.payment_method} ·{" "}
               {money(Number(s.amount))}
             </p>
+            <p className="mt-1 text-xs font-medium text-muted-foreground">Submitted {stamp(s.created_at)}</p>
           </div>
           <Badge variant={s.status === "approved" ? "default" : s.status === "rejected" ? "destructive" : "secondary"}>
             {s.status}
