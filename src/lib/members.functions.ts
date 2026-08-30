@@ -62,7 +62,10 @@ export const createMember = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => createSchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
-    // await assertStaff(context.supabase as never, context.userId);
+    const creatorRoles = await getRoles(context.userId);
+    if (!creatorRoles.includes("admin") && !creatorRoles.includes("support_manager")) {
+      throw new Error("Only admins and managers can create members");
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
