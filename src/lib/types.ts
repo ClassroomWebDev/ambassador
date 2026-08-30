@@ -13,7 +13,7 @@ export type SupportContact = {
 export const ROLE_LABELS: Record<AppRole, string> = {
   ambassador: "Ambassador",
   coordinator: "Coordinator",
-  mentor: "Mentor",
-  support_manager: "Support Manager",
+  mentor: "Faculty",
+  support_manager: "Manager",
   admin: "Admin",
 };

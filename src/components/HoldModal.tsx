@@ -46,7 +46,7 @@ export function HoldModal({ notice }: { notice: HoldNotice }) {
         </p>
 
         <div className="mt-6">
-          <ContactCard title="Support Manager" contact={notice.supportManager ?? undefined} />
+          <ContactCard title="Manager" contact={notice.supportManager ?? undefined} />
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">

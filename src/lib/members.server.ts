@@ -5,7 +5,7 @@ export const createSchema = z.object({
   mobile: z.string().min(6),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(["mentor", "coordinator", "ambassador"]),
+  role: z.enum(["support_manager", "mentor", "coordinator", "ambassador"]),
   institution: z.string().optional().nullable(),
   designation: z.string().optional().nullable(),
   mentor_id: z.string().uuid().optional().nullable(),

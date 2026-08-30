@@ -152,7 +152,7 @@ function Homepage() {
               </div>
               <h2 className="text-lg font-bold text-slate-900 mb-2">Hierarchical Support</h2>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Access your designated Coordinator, Mentor, and Company Support Manager directly from your private
+                Access your designated Coordinator, Faculty, and Company Manager directly from your private
                 support dashboard.
               </p>
             </div>
