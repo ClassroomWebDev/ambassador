@@ -18,7 +18,9 @@ import {
 import { profileCompletion, FIELD_LABELS } from "@/lib/profile-meta";
 import { ROLE_LABELS } from "@/lib/types";
 import { Leaderboard } from "@/components/Leaderboard";
+import { BirthdayBanner } from "@/components/BirthdayBanner";
 import { SupportHub } from "@/components/SupportHub";
+
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
