@@ -1,6 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertStaff, createSchema, statusSchema } from "./members.server";
+import {
+  assertStaff,
+  createSchema,
+  statusSchema,
+  resetPasswordSchema,
+  deleteMemberSchema,
+} from "./members.server";
 
 export const listMembers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
