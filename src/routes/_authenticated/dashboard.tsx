@@ -22,6 +22,7 @@ import { BirthdayBanner } from "@/components/BirthdayBanner";
 import { NoticeWidget } from "@/components/NoticeWidget";
 import { AmbassadorHero } from "@/components/AmbassadorHero";
 import { SeasonCountdown } from "@/components/SeasonCountdown";
+import { ReviewCarousel } from "@/components/ReviewCarousel";
 
 import { SupportHub } from "@/components/SupportHub";
 
@@ -191,6 +192,8 @@ function Dashboard() {
         <h2 className="font-display text-xl font-semibold">Your support hub</h2>
         <SupportHub />
       </section>
+
+      <ReviewCarousel />
     </div>
   );
 }

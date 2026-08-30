@@ -18,6 +18,7 @@ import {
   Users,
   UserRoundCog,
   Star,
+  Info,
   X,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -42,7 +43,8 @@ type NavItem = {
     | "/cms"
     | "/reviews"
     | "/profile"
-    | "/support";
+    | "/support"
+    | "/about";
   label: string;
   icon: typeof LayoutDashboard;
 };
@@ -57,6 +59,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
   const calendar: NavItem = { to: "/calendar", label: "Calendar", icon: CalendarRange };
   const certificates: NavItem = { to: "/certificates", label: "Certificates", icon: Award };
   const reviews: NavItem = { to: "/reviews", label: "Reviews", icon: Star };
+  const about: NavItem = { to: "/about", label: "About", icon: Info };
 
   if (role === "admin" || role === "support_manager") {
     return [
@@ -73,6 +76,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       { to: "/cms", label: "Website CMS", icon: LayoutTemplate },
       reviews,
       { to: "/users", label: "Users", icon: Users },
+      about,
       support,
       profile,
     ];
@@ -89,6 +93,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
       calendar,
       certificates,
       reviews,
+      about,
       support,
       profile,
     ];
@@ -104,6 +109,7 @@ function navForRole(role: AppRole | undefined): NavItem[] {
     calendar,
     certificates,
     reviews,
+    about,
     support,
     profile,
   ];
