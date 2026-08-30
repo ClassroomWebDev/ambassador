@@ -113,9 +113,14 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
     coordinator_id: "",
   });
 
-  const mentors = useMemo(() => members.filter((m) => m.role === "mentor"), [members]);
-  const managers = useMemo(() => members.filter((m) => m.role === "support_manager"), [members]);
-  const coordinators = useMemo(() => members.filter((m) => m.role === "coordinator"), [members]);
+  const active = useMemo(() => members.filter((m) => m.status === "active"), [members]);
+  const mentors = useMemo(() => active.filter((m) => m.role === "mentor"), [active]);
+  const managers = useMemo(() => active.filter((m) => m.role === "support_manager"), [active]);
+  const coordinators = useMemo(() => active.filter((m) => m.role === "coordinator"), [active]);
+
+  const showManager = form.role !== "support_manager";
+  const showFaculty = form.role === "ambassador" || form.role === "coordinator";
+  const showCoordinator = form.role === "ambassador";
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -128,11 +133,12 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
           role: form.role,
           institution: form.institution.trim() || null,
           designation: form.designation.trim() || null,
-          mentor_id: form.mentor_id || null,
-          support_manager_id: form.support_manager_id || null,
-          coordinator_id: form.coordinator_id || null,
+          mentor_id: showFaculty ? form.mentor_id || null : null,
+          support_manager_id: showManager ? form.support_manager_id || null : null,
+          coordinator_id: showCoordinator ? form.coordinator_id || null : null,
         },
       }),
+
     onSuccess: (res) => {
       toast.success(`Member created${res?.auto_id ? ` — ${res.auto_id}` : ""}`);
       setForm((f) => ({ ...f, full_name: "", mobile: "", email: "", password: "", institution: "" }));
