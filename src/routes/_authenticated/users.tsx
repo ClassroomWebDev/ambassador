@@ -184,19 +184,23 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
         <Field label="Designation">
           <Input value={form.designation} onChange={set("designation")} />
         </Field>
-        <Field label="Faculty (CBF)">
-          <Picker value={form.mentor_id} onChange={set("mentor_id")} options={mentors} placeholder="Select faculty" />
-        </Field>
-        <Field label="Manager (CBM)">
-          <Picker
-            value={form.support_manager_id}
-            onChange={set("support_manager_id")}
-            options={managers}
-            placeholder="Select manager"
-          />
-        </Field>
-        {form.role === "ambassador" ? (
-          <Field label="Coordinator">
+        {showManager ? (
+          <Field label="Select Manager (CBM)">
+            <Picker
+              value={form.support_manager_id}
+              onChange={set("support_manager_id")}
+              options={managers}
+              placeholder="Select manager"
+            />
+          </Field>
+        ) : null}
+        {showFaculty ? (
+          <Field label="Select Faculty (CBF)">
+            <Picker value={form.mentor_id} onChange={set("mentor_id")} options={mentors} placeholder="Select faculty" />
+          </Field>
+        ) : null}
+        {showCoordinator ? (
+          <Field label="Select Coordinator (CBC)">
             <Picker
               value={form.coordinator_id}
               onChange={set("coordinator_id")}
@@ -205,6 +209,7 @@ function CreateMemberForm({ members }: { members: MemberRow[] }) {
             />
           </Field>
         ) : null}
+
       </div>
       <Button className="mt-6" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
         {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <UserPlus className="size-4" />} Create
