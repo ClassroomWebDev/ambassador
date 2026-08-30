@@ -76,12 +76,41 @@ type MemberRow = {
 
 function UsersPage() {
   const list = useServerFn(listMembers);
-  const { data: myRole } = useMyRole();
-  const canCreate = myRole === "admin" || myRole === "support_manager";
+  const navigate = useNavigate();
+  const { data: myRole, isLoading: roleLoading } = useMyRole();
+  const allowed = myRole === "admin" || myRole === "support_manager";
+  const canCreate = allowed;
+
+  useEffect(() => {
+    if (roleLoading || myRole === undefined) return;
+    if (!allowed) {
+      toast.error("Unauthorized — you do not have access to user management.");
+      navigate({ to: "/dashboard", replace: true });
+    }
+  }, [allowed, myRole, roleLoading, navigate]);
+
   const members = useQuery({
     queryKey: ["members"],
     queryFn: () => list(),
+    enabled: allowed,
   });
+
+  if (roleLoading || myRole === undefined) {
+    return (
+      <div className="grid min-h-[40vh] place-items-center">
+        <Loader2 className="size-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!allowed) {
+    return (
+      <div className="grid min-h-[40vh] place-items-center text-sm text-muted-foreground">
+        Redirecting to your dashboard…
+      </div>
+    );
+  }
+
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
