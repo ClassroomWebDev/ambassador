@@ -63,18 +63,10 @@ function OpportunityPage() {
 /** e.g. "31 Aug 2026, 03:30 PM" */
 function stamp(value: string | null) {
   if (!value) return "—";
-  return new Date(value)
-    .toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    })
-    .replace(/,([^,]*)$/, ",$1")
-    .toUpperCase()
-    .replace(/(\d{2}:\d{2}) ?(AM|PM)/, "$1 $2");
+  const d = new Date(value);
+  const date = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  return `${date}, ${time}`;
 }
 
 function OpportunityEntry() {
