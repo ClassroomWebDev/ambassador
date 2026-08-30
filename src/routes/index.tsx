@@ -3,7 +3,7 @@ import { Users, Award, BookOpen, ArrowRight, ShieldCheck, Quote, Sparkles } from
 import { SeasonCountdown } from "@/components/SeasonCountdown";
 import { byKind, usePublishedCms } from "@/hooks/useCms";
 import { LogoBoard } from "@/components/LogoBoard";
-import { ReviewShowcase } from "@/components/ReviewShowcase";
+import { ReviewCarousel } from "@/components/ReviewCarousel";
 import { logosByCategory, useApprovedReviews, useLogoBoards } from "@/hooks/useEcosystem";
 
 export const Route = createFileRoute("/")({
@@ -209,7 +209,7 @@ function Homepage() {
 
         {/* Approved member reviews */}
         <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <ReviewShowcase reviews={reviews ?? []} title="Reviews from ambassadors & coordinators" />
+          <ReviewCarousel reviews={reviews ?? []} title="Reviews from ambassadors & coordinators" />
         </div>
 
         {/* FAQs */}
