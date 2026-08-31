@@ -68,6 +68,12 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
                   </div>
                   <span className="font-display text-lg font-bold text-primary">{r.total_points}</span>
                 </div>
+                {!isAmbassador ? (
+                  <p className="mt-3 border-t border-border pt-2 text-xs text-muted-foreground">
+                    Learning <span className="font-semibold text-foreground">{r.learning_points}</span> · Leadership{" "}
+                    <span className="font-semibold text-foreground">{r.leadership_points}</span>
+                  </p>
+                ) : null}
               </article>
             ))}
           </div>
@@ -80,7 +86,13 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
                   <th className="px-4 py-3">Rank</th>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Institution</th>
+                  <th className="px-4 py-3">Campus</th>
+                  {!isAmbassador ? (
+                    <>
+                      <th className="px-4 py-3 text-right">Learning points</th>
+                      <th className="px-4 py-3 text-right">Leadership points</th>
+                    </>
+                  ) : null}
                   <th className="px-4 py-3 text-right">Total points</th>
                 </tr>
               </thead>
@@ -105,6 +117,12 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
                       ) : null}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{r.institution || "—"}</td>
+                    {!isAmbassador ? (
+                      <>
+                        <td className="px-4 py-3 text-right font-medium">{r.learning_points}</td>
+                        <td className="px-4 py-3 text-right font-medium">{r.leadership_points}</td>
+                      </>
+                    ) : null}
                     <td className="px-4 py-3 text-right font-display font-bold text-primary">{r.total_points}</td>
                   </tr>
                 ))}

@@ -16,6 +16,7 @@ import { isStaffRole } from "@/hooks/useBusiness";
 import { CMS_KINDS, byKind, useCmsSections, type CmsKind, type CmsSection } from "@/hooks/useCms";
 import { CompanyWingsAdmin, LogoBoardsAdmin } from "@/components/EcosystemAdmin";
 import { ReviewsModeration } from "@/components/ReviewsModeration";
+import { BrandSettings } from "@/components/BrandSettings";
 
 export const Route = createFileRoute("/_authenticated/cms")({
   component: CmsPage,
@@ -63,6 +64,7 @@ function CmsPage() {
             <TabsTrigger value="logos">Logo Boards</TabsTrigger>
             <TabsTrigger value="wings">Sister Concerns</TabsTrigger>
             <TabsTrigger value="reviews">Reviews Moderation</TabsTrigger>
+            <TabsTrigger value="branding">Branding</TabsTrigger>
           </TabsList>
           <TabsContent value="sections" className="mt-6">
             <CmsBoard />
@@ -75,6 +77,9 @@ function CmsPage() {
           </TabsContent>
           <TabsContent value="reviews" className="mt-6">
             <ReviewsModeration />
+          </TabsContent>
+          <TabsContent value="branding" className="mt-6">
+            <BrandSettings />
           </TabsContent>
         </Tabs>
       ) : null}

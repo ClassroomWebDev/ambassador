@@ -120,6 +120,24 @@ export type LeaderRow = {
   total_points: number;
 };
 
+export const DEFAULT_BRAND_TITLE = "Ambassador Hub";
+
+/** Present-attendance count per class session (respects RLS scope of the caller). */
+export function useAttendanceCounts() {
+  return useQuery({
+    queryKey: ["attendance-counts"],
+    queryFn: async (): Promise<Record<string, number>> => {
+      const { data, error } = await supabase.from("attendances").select("session_id, present");
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      for (const row of data ?? []) {
+        if (row.present) counts[row.session_id] = (counts[row.session_id] ?? 0) + 1;
+      }
+      return counts;
+    },
+  });
+}
+
 export function useProgramSettings() {
   return useQuery({
     queryKey: ["program-settings"],
