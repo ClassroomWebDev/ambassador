@@ -12,12 +12,12 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Meet Classroom Bangladesh: our story, enterprise wings and sister concerns, corporate partners, campus network and reviews from campus ambassadors.",
+          "Meet Classroom Bangladesh: our story, enterprise wings, corporate partners, and campus network.",
       },
       { property: "og:title", content: "About Classroom Bangladesh | Our Ecosystem & Wings" },
       {
         property: "og:description",
-        content: "Our narrative, sister concerns, partner network, campus institutions and ambassador reviews.",
+        content: "Our narrative, sister concerns, partner network, and campus institutions.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

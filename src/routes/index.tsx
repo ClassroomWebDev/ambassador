@@ -53,7 +53,6 @@ function Homepage() {
   const { data: logos } = useLogoBoards();
   const { data: reviews } = useApprovedReviews();
   const heroes = byKind(cms, "hero");
-  const features = byKind(cms, "feature");
   const highlights = byKind(cms, "highlight");
   const testimonials = byKind(cms, "testimonial");
   const faqs = byKind(cms, "faq");
@@ -123,23 +122,13 @@ function Homepage() {
         {/* Feature cards */}
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {features.length > 0
-              ? features.map((f) => (
+            {DEFAULT_FEATURES.map((f) => (
                   <div key={f.id} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-[#991B1B]">
                       <Sparkles className="h-6 w-6" />
                     </div>
                     <h2 className="mb-2 text-lg font-bold text-slate-900">{f.title}</h2>
                     {f.subtitle ? <p className="mb-1 text-xs font-semibold text-[#991B1B]">{f.subtitle}</p> : null}
-                    <p className="text-sm leading-relaxed text-slate-600">{f.body}</p>
-                  </div>
-                ))
-              : DEFAULT_FEATURES.map((f) => (
-                  <div key={f.id} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-[#991B1B]">
-                      <f.icon className="h-6 w-6" />
-                    </div>
-                    <h2 className="mb-2 text-lg font-bold text-slate-900">{f.title}</h2>
                     <p className="text-sm leading-relaxed text-slate-600">{f.body}</p>
                   </div>
                 ))}
