@@ -128,7 +128,6 @@ function Homepage() {
                       <Sparkles className="h-6 w-6" />
                     </div>
                     <h2 className="mb-2 text-lg font-bold text-slate-900">{f.title}</h2>
-                    {f.subtitle ? <p className="mb-1 text-xs font-semibold text-[#991B1B]">{f.subtitle}</p> : null}
                     <p className="text-sm leading-relaxed text-slate-600">{f.body}</p>
                   </div>
                 ))}
