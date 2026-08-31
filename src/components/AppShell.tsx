@@ -255,12 +255,21 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 function Brand() {
+  const { data: settings } = useProgramSettings();
+  const title = settings?.brand_title?.trim() || DEFAULT_BRAND_TITLE;
+  const initials =
+    title
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase() ?? "")
+      .join("") || "AH";
+
   return (
-    <div className="flex items-center gap-2.5">
-      <span className="grid size-9 place-items-center rounded-xl bg-sidebar-primary font-display text-sm font-bold text-sidebar-primary-foreground">
-        AH
+    <div className="flex min-w-0 items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-sidebar-primary font-display text-sm font-bold text-sidebar-primary-foreground">
+        {initials}
       </span>
-      <span className="font-display text-base font-semibold tracking-tight">Ambassador Hub</span>
+      <span className="truncate font-display text-base font-semibold tracking-tight">{title}</span>
     </div>
   );
 }
