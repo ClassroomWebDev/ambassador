@@ -86,7 +86,13 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
                   <th className="px-4 py-3">Rank</th>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Institution</th>
+                  <th className="px-4 py-3">Campus</th>
+                  {!isAmbassador ? (
+                    <>
+                      <th className="px-4 py-3 text-right">Learning points</th>
+                      <th className="px-4 py-3 text-right">Leadership points</th>
+                    </>
+                  ) : null}
                   <th className="px-4 py-3 text-right">Total points</th>
                 </tr>
               </thead>
