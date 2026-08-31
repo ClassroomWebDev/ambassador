@@ -24,6 +24,7 @@ import {
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useProfile } from "@/hooks/useProfile";
+import { DEFAULT_BRAND_TITLE, useProgramSettings } from "@/hooks/useBusiness";
 import { ROLE_LABELS, type AppRole } from "@/lib/types";
 import { NotificationBell } from "@/components/NotificationBell";
 

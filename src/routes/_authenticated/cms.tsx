@@ -63,6 +63,7 @@ function CmsPage() {
             <TabsTrigger value="logos">Logo Boards</TabsTrigger>
             <TabsTrigger value="wings">Sister Concerns</TabsTrigger>
             <TabsTrigger value="reviews">Reviews Moderation</TabsTrigger>
+            <TabsTrigger value="branding">Branding</TabsTrigger>
           </TabsList>
           <TabsContent value="sections" className="mt-6">
             <CmsBoard />

@@ -188,12 +188,13 @@ function Dashboard() {
 
       <Leaderboard limit={10} />
 
+      <ReviewCarousel />
+
+      {/* Support hub sits at the very bottom, below all analytics and summaries. */}
       <section className="space-y-4">
         <h2 className="font-display text-xl font-semibold">Your support hub</h2>
         <SupportHub />
       </section>
-
-      <ReviewCarousel />
     </div>
   );
 }
