@@ -68,6 +68,12 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
                   </div>
                   <span className="font-display text-lg font-bold text-primary">{r.total_points}</span>
                 </div>
+                {!isAmbassador ? (
+                  <p className="mt-3 border-t border-border pt-2 text-xs text-muted-foreground">
+                    Learning <span className="font-semibold text-foreground">{r.learning_points}</span> · Leadership{" "}
+                    <span className="font-semibold text-foreground">{r.leadership_points}</span>
+                  </p>
+                ) : null}
               </article>
             ))}
           </div>
