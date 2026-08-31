@@ -29,21 +29,21 @@ export const Route = createFileRoute("/")({
 
 const DEFAULT_FEATURES = [
   {
-    id: "learning",
-    title: "Learning Points",
-    body: "Join scheduled masterclasses and interactive sessions. Attendance marked by your Coordinator credits direct learning points.",
+    id: "learn",
+    title: "Learn",
+    body: "Master modern skills today, unlock your true potential, and prepare yourself for every future opportunity.",
     icon: BookOpen,
   },
   {
-    id: "leadership",
-    title: "Leadership Points",
-    body: "Drive verified course enrollments across your campus at exclusive Student Special Prices to climb the centralized Leaderboard.",
+    id: "lead",
+    title: "Lead",
+    body: "Step up with unshakable confidence, inspire your entire campus peers, and guide them toward massive success.",
     icon: Award,
   },
   {
-    id: "support",
-    title: "Hierarchical Support",
-    body: "Access your designated Coordinator, Faculty, and Company Manager directly from your private support dashboard.",
+    id: "impact",
+    title: "Impact",
+    body: "Create meaningful changes around you, drive real transformation, and build a lasting legacy that truly matters.",
     icon: Users,
   },
 ];
@@ -75,12 +75,6 @@ function Homepage() {
             </div>
           </div>
           <nav className="flex items-center gap-2">
-          <Link
-            to="/about"
-            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-900"
-          >
-            About Us
-          </Link>
           <Link
             to="/auth"
             className="inline-flex items-center justify-center rounded-lg bg-[#991B1B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-800"
@@ -187,29 +181,18 @@ function Homepage() {
           </section>
         ) : null}
 
-        {/* Logo showcase boards */}
+        {/* Approved reviews appear before the institutional showcase. */}
+        <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <ReviewCarousel reviews={reviews ?? []} title="Reviews from ambassadors & coordinators" />
+        </div>
+
+        {/* Institutional logo showcase */}
         <div className="mx-auto w-full max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
           <LogoBoard
-            title="Our Wings & Sister Concerns"
-            subtitle="One group, many specialised enterprises."
-            logos={logosByCategory(logos, "wing")}
-          />
-          <LogoBoard
-            title="Clients & Partners"
-            subtitle="Corporate houses who build talent with us."
-            logos={logosByCategory(logos, "client")}
-            tone="dark"
-          />
-          <LogoBoard
-            title="Campus & Institutional Partners"
+            title="Represented Campuses & Universities"
             subtitle="Colleges and universities our ambassadors proudly represent."
             logos={logosByCategory(logos, "campus")}
           />
-        </div>
-
-        {/* Approved member reviews */}
-        <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <ReviewCarousel reviews={reviews ?? []} title="Reviews from ambassadors & coordinators" />
         </div>
 
         {/* FAQs */}
