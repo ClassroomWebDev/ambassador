@@ -117,6 +117,12 @@ export function Leaderboard({ limit = 10 }: { limit?: number }) {
                       ) : null}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{r.institution || "—"}</td>
+                    {!isAmbassador ? (
+                      <>
+                        <td className="px-4 py-3 text-right font-medium">{r.learning_points}</td>
+                        <td className="px-4 py-3 text-right font-medium">{r.leadership_points}</td>
+                      </>
+                    ) : null}
                     <td className="px-4 py-3 text-right font-display font-bold text-primary">{r.total_points}</td>
                   </tr>
                 ))}
