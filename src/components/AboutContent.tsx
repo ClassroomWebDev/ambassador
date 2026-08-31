@@ -11,7 +11,6 @@ import {
   Youtube,
 } from "lucide-react";
 import { LogoBoard } from "@/components/LogoBoard";
-import { ReviewCarousel } from "@/components/ReviewCarousel";
 import {
   logosByCategory,
   parseSocialLinks,
@@ -49,7 +48,7 @@ function iconFor(label: string) {
   return Globe;
 }
 
-/** Read-only ecosystem showcase: mother company, 3 logo boards, sister concerns, reviews. */
+/** Read-only ecosystem showcase: mother company, 3 logo boards, and sister concerns. */
 export function AboutContent() {
   const { data: logos } = useLogoBoards();
   const { data: wings } = useCompanyWings();
@@ -271,7 +270,6 @@ export function AboutContent() {
         </section>
       ) : null}
 
-      <ReviewCarousel title="Reviews from ambassadors & coordinators" />
     </div>
   );
 }

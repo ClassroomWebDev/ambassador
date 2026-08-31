@@ -22,8 +22,6 @@ export function ReviewSubmission() {
 
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [institution, setInstitution] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -39,8 +37,8 @@ export function ReviewSubmission() {
     const { error } = await supabase.from("member_reviews").insert({
       user_id: uid,
       author_name: profile?.full_name ?? "Member",
-      role: designation.trim() || (role ? ROLE_LABELS[role] : null),
-      institution: institution.trim() || profile?.institution || null,
+      role: role ? ROLE_LABELS[role] : null,
+      institution: profile?.institution || null,
       rating,
       review_text: text.trim(),
       photo_url: photoUrl.trim() || profile?.photo_url || null,
@@ -50,8 +48,6 @@ export function ReviewSubmission() {
     if (error) { toast.error(error.message); return; }
     toast.success("Review submitted for approval");
     setText("");
-    setDesignation("");
-    setInstitution("");
     setPhotoUrl("");
     void queryClient.invalidateQueries({ queryKey: ["member-reviews"] });
   }
@@ -75,18 +71,18 @@ export function ReviewSubmission() {
           <div className="grid gap-1.5">
             <Label className="text-xs uppercase tracking-wide text-muted-foreground">Designation</Label>
             <Input
-              value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
-              placeholder={role ? ROLE_LABELS[role] : "Campus Ambassador"}
+              value={role ? ROLE_LABELS[role] : ""}
+              disabled
+              placeholder="Your role"
               maxLength={80}
             />
           </div>
           <div className="grid gap-1.5">
             <Label className="text-xs uppercase tracking-wide text-muted-foreground">Campus / Institution</Label>
             <Input
-              value={institution}
-              onChange={(e) => setInstitution(e.target.value)}
-              placeholder={profile?.institution ?? "Your campus"}
+              value={profile?.institution ?? ""}
+              disabled
+              placeholder="Your campus"
               maxLength={120}
             />
           </div>
